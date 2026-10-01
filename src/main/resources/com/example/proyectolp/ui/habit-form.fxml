@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ButtonType?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.DialogPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+<DialogPane fx:id="dialogPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.HabitFormController">
+    <buttonTypes><ButtonType fx:constant="CANCEL"/><ButtonType fx:constant="OK"/></buttonTypes>
+    <content><VBox spacing="10">
+        <padding><Insets top="14" right="16" bottom="12" left="16"/></padding>
+        <Label text="Nombre *"/><TextField fx:id="txtName" promptText="Ej. Leer 20 minutos"/>
+        <Label text="Descripción"/><TextArea fx:id="txtDescription" prefRowCount="3" wrapText="true" promptText="Descripción opcional"/>
+        <CheckBox fx:id="chkActive" text="Hábito activo" selected="true"/>
+        <Label fx:id="lblValidation" wrapText="true" style="-fx-text-fill: #b42318;"/>
+    </VBox></content>
+</DialogPane>

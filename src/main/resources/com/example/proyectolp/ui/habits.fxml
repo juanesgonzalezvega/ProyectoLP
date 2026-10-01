@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<BorderPane fx:id="habitsRoot" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.HabitsController">
+    <top><VBox spacing="12"><padding><Insets top="18" right="22" bottom="14" left="22"/></padding>
+        <HBox alignment="CENTER_LEFT" spacing="14"><Button text="← Dashboard" onAction="#volverDashboard"/><Label text="Hábitos" style="-fx-font-size: 24px; -fx-font-weight: bold;"/><HBox HBox.hgrow="ALWAYS"/><Button fx:id="btnNewHabit" text="Nuevo hábito" onAction="#nuevoHabito"/></HBox>
+        <HBox alignment="CENTER_LEFT" spacing="10"><Label text="Día a marcar:"/><DatePicker fx:id="dateSelected"/><CheckBox fx:id="chkShowInactive" text="Mostrar inactivos"/><Button fx:id="btnEdit" text="Editar" onAction="#editarHabito"/><Button fx:id="btnToggleActive" text="Desactivar" onAction="#activarDesactivar"/><Label fx:id="lblMessage" wrapText="true" style="-fx-text-fill: #555;"/></HBox>
+    </VBox></top>
+    <center><GridPane hgap="14" vgap="12" style="-fx-padding: 0 22 20 22;">
+        <columnConstraints><ColumnConstraints percentWidth="67"/><ColumnConstraints percentWidth="33"/></columnConstraints>
+        <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="Rachas y cumplimiento" style="-fx-font-size: 17px; -fx-font-weight: bold;"/>
+            <TableView fx:id="tblHabits" editable="true" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colHabitName" text="Hábito" prefWidth="180"/>
+                    <TableColumn fx:id="colCurrentStreak" text="Racha actual" prefWidth="95"/>
+                    <TableColumn fx:id="colBestStreak" text="Mejor racha" prefWidth="95"/>
+                    <TableColumn fx:id="colCompliance" text="Últimos 30 días" prefWidth="110"/>
+                    <TableColumn fx:id="colDone" text="Cumplido" prefWidth="90" editable="true"/>
+                    <TableColumn fx:id="colActive" text="Estado" prefWidth="75"/>
+                </columns>
+                <placeholder><Label text="No hay hábitos para mostrar."/></placeholder>
+            </TableView>
+        </VBox>
+        <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label fx:id="lblHistoryTitle" text="Historial de los últimos 30 días" style="-fx-font-size: 17px; -fx-font-weight: bold;"/>
+            <TableView fx:id="tblHistory" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colHistoryDate" text="Fecha" prefWidth="130"/>
+                    <TableColumn fx:id="colHistoryStatus" text="Registro" prefWidth="120"/>
+                </columns>
+                <placeholder><Label text="Selecciona un hábito para ver su historial."/></placeholder>
+            </TableView>
+        </VBox>
+    </GridPane></center>
+</BorderPane>

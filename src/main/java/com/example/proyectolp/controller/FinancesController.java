@@ -1,0 +1,64 @@
+package com.example.proyectolp.controller;
+
+import com.example.proyectolp.config.AppConfig;
+import com.example.proyectolp.model.*;
+import com.example.proyectolp.repository.*;
+import com.example.proyectolp.service.*;
+import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.chart.*;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.*;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.stream.Collectors;
+
+public class FinancesController {
+    @FXML private TableView<FinancialMovement> tblMovements;
+    @FXML private TableColumn<FinancialMovement,String> colType,colDate,colCategory,colDescription;
+    @FXML private TableColumn<FinancialMovement,BigDecimal> colAmount;
+    @FXML private ComboBox<String> cmbFilterType;
+    @FXML private TextField txtFilterCategory,txtFilterMonth;
+    @FXML private Label lblMessage,lblAvailable,lblIncomeTotal,lblExpenseTotal,lblMonthlyExpenses,lblMonthlyBalance,lblStatsError;
+    @FXML private PieChart chartCategories;
+    @FXML private BarChart<String,Number> chartEvolution;
+    @FXML private VBox boxGoals;
+    @FXML private Button btnEditMovement,btnDeleteMovement,btnEditGoal,btnDeleteGoal,btnContribute;
+    private final ExecutorService executor=Executors.newSingleThreadExecutor(r->{Thread t=new Thread(r,"finance-worker");t.setDaemon(true);return t;});
+    private final FinanceCalculationService calculations=new FinanceCalculationService();
+    private List<FinancialMovement> allMovements=List.of();private List<FinancialGoal> goals=List.of();private Parent dashboardView;private DashboardController dashboardController;
+    @FXML private void initialize(){colType.setCellValueFactory(c->new javafx.beans.property.SimpleStringProperty(c.getValue().getType()==FinancialMovement.Type.INGRESO?"Ingreso":"Gasto"));colAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));colDate.setCellValueFactory(new PropertyValueFactory<>("date"));colCategory.setCellValueFactory(new PropertyValueFactory<>("category"));colDescription.setCellValueFactory(new PropertyValueFactory<>("description"));cmbFilterType.getItems().setAll("Todos","Ingresos","Gastos");cmbFilterType.setValue("Todos");cmbFilterType.setOnAction(e->aplicarFiltros());txtFilterCategory.textProperty().addListener((o,a,b)->aplicarFiltros());txtFilterMonth.textProperty().addListener((o,a,b)->aplicarFiltros());tblMovements.getSelectionModel().selectedItemProperty().addListener((o,a,b)->updateMovementButtons());updateMovementButtons();cargar();}
+    public void setDashboard(Parent view,DashboardController controller){dashboardView=view;dashboardController=controller;}
+    @FXML public void cargar(){lblMessage.setText("Cargando finanzas…");lblStatsError.setText("");executor.submit(()->{try{SupabaseService s=new SupabaseService(AppConfig.load());List<FinancialMovement> all=new ArrayList<>();all.addAll(new IncomeRepository(s).listar());all.addAll(new ExpenseRepository(s).listar());List<FinancialGoal> found=new FinancialGoalRepository(s).listar();javafx.application.Platform.runLater(()->{allMovements=all;goals=found;render();lblMessage.setText("");});}catch(Exception e){javafx.application.Platform.runLater(()->{lblMessage.setText(readable(e));lblStatsError.setText(readable(e));});}});}
+    private void render(){aplicarFiltros();FinanceCalculationService.Balance all=calculations.balance(allMovements),month=calculations.balanceMes(allMovements,YearMonth.now());lblAvailable.setText(money(all.available()));lblIncomeTotal.setText(money(all.income()));lblExpenseTotal.setText(money(all.expenses()));lblMonthlyExpenses.setText(money(month.expenses()));lblMonthlyBalance.setText(money(month.available()));chartCategories.getData().setAll(calculations.gastosPorCategoria(allMovements).entrySet().stream().map(e->new PieChart.Data(e.getKey()+" · "+money(e.getValue()),e.getValue().doubleValue())).toList());chartEvolution.getData().clear();XYChart.Series<String,Number> income=new XYChart.Series<>(),expense=new XYChart.Series<>();income.setName("Ingresos");expense.setName("Gastos");calculations.evolucionMensual(allMovements).forEach((m,b)->{String label=m.toString();income.getData().add(new XYChart.Data<>(label,b.income().doubleValue()));expense.getData().add(new XYChart.Data<>(label,b.expenses().doubleValue()));});chartEvolution.getData().addAll(income,expense);renderGoals();}
+    private void aplicarFiltros(){if(tblMovements==null)return;String type=cmbFilterType.getValue(),cat=txtFilterCategory.getText()==null?"":txtFilterCategory.getText().trim().toLowerCase(Locale.ROOT),month=txtFilterMonth.getText()==null?"":txtFilterMonth.getText().trim();List<FinancialMovement> filtered=allMovements.stream().filter(m->type==null||type.equals("Todos")||(type.equals("Ingresos")== (m.getType()==FinancialMovement.Type.INGRESO))).filter(m->cat.isBlank()||(m.getCategory()!=null&&m.getCategory().toLowerCase(Locale.ROOT).contains(cat))).filter(m->{if(month.isBlank())return true;try{return YearMonth.from(m.getDate()).toString().equals(month);}catch(Exception e){return false;}}).sorted(Comparator.comparing(FinancialMovement::getDate).reversed()).toList();tblMovements.setItems(FXCollections.observableArrayList(filtered));updateMovementButtons();}
+    private void renderGoals(){boxGoals.getChildren().clear();for(FinancialGoal goal:goals){double progress=calculations.progreso(goal).doubleValue()/100.0;ProgressBar bar=new ProgressBar(progress);bar.setMaxWidth(Double.MAX_VALUE);VBox card=new VBox(5,new Label(goal.getName()),bar,new Label(money(goal.getSavedAmount())+" de "+money(goal.getTargetAmount())+" · Falta "+money(calculations.restante(goal))));card.setStyle("-fx-padding: 12; -fx-border-color: #d9dee7; -fx-border-radius: 6;");card.setOnMouseClicked(e->{boxGoals.getProperties().put("selected",goal);updateGoalButtons();});boxGoals.getChildren().add(card);}if(goals.isEmpty())boxGoals.getChildren().add(new Label("No hay metas creadas."));updateGoalButtons();}
+    @FXML private void nuevoMovimiento(){movementDialog(null);}
+    @FXML private void editarMovimiento(){FinancialMovement selected=tblMovements.getSelectionModel().getSelectedItem();if(selected!=null)movementDialog(selected);}
+    private void movementDialog(FinancialMovement original){try{FXMLLoader loader=new FXMLLoader(getClass().getResource("/com/example/proyectolp/ui/movement-form.fxml"));DialogPane pane=loader.load();MovementFormController form=loader.getController();form.configure(original);Dialog<FinancialMovement>d=new Dialog<>();d.setTitle(original==null?"Nuevo movimiento":"Editar movimiento");d.initOwner(tblMovements.getScene().getWindow());d.initModality(Modality.WINDOW_MODAL);d.setDialogPane(pane);d.setResultConverter(b->b==ButtonType.OK?form.build():null);d.showAndWait().ifPresent(value->saveMovement(value,original==null));}catch(IOException e){lblMessage.setText("No se pudo abrir el formulario.");}}
+    private void saveMovement(FinancialMovement m,boolean creating){runSave(()->{SupabaseService s=new SupabaseService(AppConfig.load());if(m.getType()==FinancialMovement.Type.INGRESO){IncomeRepository r=new IncomeRepository(s);if(creating)r.crear(m);else r.actualizar(m);}else{ExpenseRepository r=new ExpenseRepository(s);if(creating)r.crear(m);else r.actualizar(m);}},creating?"Movimiento creado.":"Movimiento actualizado.");}
+    @FXML private void eliminarMovimiento(){FinancialMovement m=tblMovements.getSelectionModel().getSelectedItem();if(m==null)return;Alert a=new Alert(Alert.AlertType.CONFIRMATION,"¿Eliminar este movimiento?",ButtonType.CANCEL,ButtonType.OK);a.initOwner(tblMovements.getScene().getWindow());if(a.showAndWait().orElse(ButtonType.CANCEL)!=ButtonType.OK)return;runSave(()->{SupabaseService s=new SupabaseService(AppConfig.load());if(m.getType()==FinancialMovement.Type.INGRESO)new IncomeRepository(s).eliminar(m.getId());else new ExpenseRepository(s).eliminar(m.getId());},"Movimiento eliminado.");}
+    @FXML private void nuevaMeta(){goalDialog(null,false);}
+    @FXML private void editarMeta(){FinancialGoal g=selectedGoal();if(g!=null)goalDialog(g,false);}
+    @FXML private void aportar(){FinancialGoal g=selectedGoal();if(g!=null)goalDialog(g,true);}
+    private void goalDialog(FinancialGoal goal,boolean contribution){try{FXMLLoader loader=new FXMLLoader(getClass().getResource("/com/example/proyectolp/ui/goal-form.fxml"));DialogPane pane=loader.load();GoalFormController form=loader.getController();form.configure(goal,contribution);Dialog<ButtonType>d=new Dialog<>();d.setTitle(contribution?"Registrar aporte":goal==null?"Nueva meta":"Editar meta");d.initOwner(boxGoals.getScene().getWindow());d.initModality(Modality.WINDOW_MODAL);d.setDialogPane(pane);d.showAndWait().filter(b->b==ButtonType.OK).ifPresent(b->{if(contribution){BigDecimal amount=form.buildContribution();runSave(()->new FinancialGoalRepository(new SupabaseService(AppConfig.load())).aportar(goal,amount),"Aporte registrado.");}else{FinancialGoal value=form.buildGoal();runSave(()->{FinancialGoalRepository r=new FinancialGoalRepository(new SupabaseService(AppConfig.load()));if(goal==null)r.crear(value);else r.actualizar(value);},goal==null?"Meta creada.":"Meta actualizada.");}});}catch(IOException e){lblMessage.setText("No se pudo abrir el formulario de meta.");}}
+    @FXML private void eliminarMeta(){FinancialGoal g=selectedGoal();if(g==null)return;Alert a=new Alert(Alert.AlertType.CONFIRMATION,"¿Eliminar la meta «"+g.getName()+"»?",ButtonType.CANCEL,ButtonType.OK);a.initOwner(boxGoals.getScene().getWindow());if(a.showAndWait().orElse(ButtonType.CANCEL)==ButtonType.OK)runSave(()->new FinancialGoalRepository(new SupabaseService(AppConfig.load())).eliminar(g.getId()),"Meta eliminada.");}
+    private FinancialGoal selectedGoal(){Object value=boxGoals.getProperties().get("selected");return value instanceof FinancialGoal g?g:null;}
+    private void runSave(Work work,String success){lblMessage.setText("Guardando…");executor.submit(()->{try{work.run();javafx.application.Platform.runLater(()->{lblMessage.setText(success);cargar();});}catch(Exception e){javafx.application.Platform.runLater(()->lblMessage.setText(readable(e)));}});}
+    @FXML private void volverDashboard(){if(dashboardView!=null){tblMovements.getScene().setRoot(dashboardView);if(dashboardController!=null)dashboardController.refrescar();}else try{Parent view=FXMLLoader.load(getClass().getResource("/com/example/proyectolp/ui/dashboard.fxml"));Scene scene=tblMovements.getScene();scene.setRoot(view);}catch(IOException e){lblMessage.setText("No se pudo abrir el Dashboard.");}}
+    private void updateMovementButtons(){boolean selected=tblMovements!=null&&tblMovements.getSelectionModel().getSelectedItem()!=null;if(btnEditMovement!=null)btnEditMovement.setDisable(!selected);if(btnDeleteMovement!=null)btnDeleteMovement.setDisable(!selected);}
+    private void updateGoalButtons(){boolean selected=selectedGoal()!=null;if(btnEditGoal!=null)btnEditGoal.setDisable(!selected);if(btnDeleteGoal!=null)btnDeleteGoal.setDisable(!selected);if(btnContribute!=null)btnContribute.setDisable(!selected);}
+    private static String money(BigDecimal n){return n==null?"$0.00":"$"+n.setScale(2,java.math.RoundingMode.HALF_UP).toPlainString();}
+    private static String readable(Exception e){if(e instanceof com.example.proyectolp.service.SupabaseException s){int code=s.getStatusCode();if(code==401||code==403)return "Supabase rechazó el acceso. Revisa la clave y las políticas RLS.";if(code==404)return "No se encontraron las tablas de Finanzas. Ejecuta supabase/00_schema.sql.";if(code>=500)return "Supabase presenta un problema temporal. Inténtalo de nuevo.";return "Supabase rechazó los datos. Revisa los campos e inténtalo de nuevo.";}if(e instanceof java.net.http.HttpTimeoutException)return "Supabase tardó demasiado en responder. Inténtalo de nuevo.";if(e instanceof java.io.IOException||e instanceof InterruptedException)return "No fue posible conectar con Supabase. Revisa internet y config.properties.";return "No fue posible completar la operación. Revisa los datos e inténtalo de nuevo.";}
+    @FunctionalInterface private interface Work{void run()throws Exception;}
+}

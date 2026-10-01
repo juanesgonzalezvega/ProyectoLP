@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ButtonType?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.DialogPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<DialogPane fx:id="dialogPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.TaskFormController">
+    <buttonTypes><ButtonType fx:constant="CANCEL"/><ButtonType fx:constant="OK"/></buttonTypes>
+    <content><GridPane hgap="12" vgap="10">
+        <padding><Insets top="12" right="14" bottom="8" left="14"/></padding>
+        <columnConstraints><ColumnConstraints minWidth="105"/><ColumnConstraints hgrow="ALWAYS"/></columnConstraints>
+        <Label text="Nombre *" GridPane.rowIndex="0"/><TextField fx:id="txtName" promptText="Nombre de la tarea" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        <Label text="Descripción" GridPane.rowIndex="1"/><TextArea fx:id="txtDescription" prefRowCount="3" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <Label text="Prioridad *" GridPane.rowIndex="2"/><ComboBox fx:id="cmbPriority" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <Label text="Estado *" GridPane.rowIndex="3"/><ComboBox fx:id="cmbStatus" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+        <Label text="Fecha límite" GridPane.rowIndex="4"/><DatePicker fx:id="dateDue" editable="false" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+        <Label text="Progreso" GridPane.rowIndex="5"/><GridPane hgap="8" GridPane.columnIndex="1" GridPane.rowIndex="5"><Slider fx:id="sldProgress" min="0" max="100" majorTickUnit="10" showTickMarks="true"/><Label fx:id="lblProgress" text="0%" GridPane.columnIndex="1"/></GridPane>
+        <Label text="Categoría" GridPane.rowIndex="6"/><TextField fx:id="txtCategory" promptText="Opcional" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+        <Label text="Proyecto" GridPane.rowIndex="7"/><ComboBox fx:id="cmbProject" promptText="Sin proyecto" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+        <Label fx:id="lblValidation" wrapText="true" style="-fx-text-fill: #b42318;" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+    </GridPane></content>
+</DialogPane>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ButtonType?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.DialogPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<DialogPane fx:id="dialogPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.MovementFormController">
+    <buttonTypes><ButtonType fx:constant="CANCEL"/><ButtonType fx:constant="OK"/></buttonTypes>
+    <content><GridPane hgap="10" vgap="10"><padding><Insets top="12" right="14" bottom="12" left="14"/></padding><columnConstraints><ColumnConstraints minWidth="100"/><ColumnConstraints hgrow="ALWAYS"/></columnConstraints>
+        <Label text="Tipo" GridPane.rowIndex="0"/><ComboBox fx:id="cmbType" maxWidth="Infinity" GridPane.columnIndex="1"/>
+        <Label text="Monto" GridPane.rowIndex="1"/><TextField fx:id="txtAmount" promptText="Ej. 125000" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <Label text="Categoría" GridPane.rowIndex="2"/><ComboBox fx:id="cmbCategory" editable="true" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <Label text="Fecha" GridPane.rowIndex="3"/><DatePicker fx:id="dateMovement" maxWidth="Infinity" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+        <Label text="Descripción" GridPane.rowIndex="4"/><TextArea fx:id="txtDescription" prefRowCount="3" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+        <Label fx:id="lblValidation" wrapText="true" style="-fx-text-fill: #b42318;" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+    </GridPane></content>
+</DialogPane>
