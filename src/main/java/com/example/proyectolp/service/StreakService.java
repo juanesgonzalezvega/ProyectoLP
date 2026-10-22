@@ -29,7 +29,12 @@ public class StreakService {
     public synchronized void recordAction() throws Exception {
         UserStats s=stats.get(); StreakRules.Transition next=StreakRules.action(s.current_streak,s.best_streak,s.last_activity_date,today());
         s.current_streak=next.current(); s.best_streak=next.best(); s.last_activity_date=next.last(); stats.save(s);
-        GamificationRuntime.service().refreshStreakBadges();
+        try {
+            GamificationRuntime.service().refreshStreakBadges();
+        } catch (Exception e) {
+            // La racha ya se guardó; las insignias no deben interrumpir una operación de negocio.
+            NotificationService.getInstance().show("La racha se actualizó; no se pudieron revisar las insignias.");
+        }
     }
     public void checkPenalty() throws Exception { beforeAction(); }
     public UserStats getStats() throws Exception { return stats.get(); }

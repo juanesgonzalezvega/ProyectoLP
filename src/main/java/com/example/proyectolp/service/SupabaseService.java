@@ -68,7 +68,10 @@ public class SupabaseService {
                 if(response.statusCode()==401){sessions.emitExpired("La sesión expiró. Inicia sesión de nuevo.");throw new SupabaseException(401,"La sesión expiró. Inicia sesión de nuevo.");}
             }
             if(response.statusCode()<200||response.statusCode()>=300)throw new SupabaseException(response.statusCode(),response.body());
-            if(business&&current!=null){WriteListener l=writeListener;if(l!=null)try{l.afterBusinessWrite(table);}catch(Exception e){throw new IOException("Se guardó la acción, pero no se pudo actualizar la racha.",e);}}
+            if(business&&current!=null){WriteListener l=writeListener;if(l!=null)try{l.afterBusinessWrite(table);}catch(Exception e){
+                // La escritura principal ya quedó confirmada por Supabase; un fallo auxiliar no debe cortar operaciones compuestas.
+                NotificationService.getInstance().show("Se guardó el cambio, pero no se pudo actualizar la racha. Vuelve a intentarlo o revisa user_stats y sus políticas RLS.");
+            }}
             return response;
         } finally {lock.unlock();}
     }

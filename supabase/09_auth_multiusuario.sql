@@ -14,6 +14,8 @@ create table if not exists public.profiles (
 do $$ declare t text; begin
   foreach t in array array['tasks','projects','stages','habits','habit_logs','income','expenses','financial_goals','workout_routines','exercises','workout_sessions','workout_sets','credit_ledger','xp_log','user_stats','user_badges','daily_missions'] loop
     execute format('alter table public.%I add column if not exists user_id uuid default auth.uid() references auth.users(id) on delete cascade', t);
+    -- Reaplica el default incluso si otra ejecución creó antes la columna sin él.
+    execute format('alter table public.%I alter column user_id set default auth.uid()', t);
     execute format('create index if not exists %I on public.%I(user_id)', t || '_user_id_idx', t);
     execute format('alter table public.%I enable row level security', t);
     execute format('revoke all on public.%I from anon', t);
