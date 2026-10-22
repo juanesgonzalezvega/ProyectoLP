@@ -54,6 +54,7 @@ public class HabitRepository {
         Map<String, Object> values = new LinkedHashMap<>();
         values.put("habit_id", habitId); values.put("log_date", date); values.put("completed", completed);
         supabase.post("habit_logs?on_conflict=habit_id,log_date", values, "resolution=merge-duplicates,return=minimal");
+        com.example.proyectolp.service.GamificationRuntime.service().habitCompleted(habitId,date,completed);
     }
 
     private Map<String, Object> habitFields(Habit habit) {

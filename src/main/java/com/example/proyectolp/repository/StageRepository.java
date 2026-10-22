@@ -27,7 +27,15 @@ public class StageRepository {
         if (rows.isEmpty()) throw new IllegalStateException("Supabase no devolvió la etapa creada.");
         return rows.get(0);
     }
-    public void actualizar(Stage stage) throws Exception { supabase.patch("stages?id=eq." + stage.getId(), fields(stage), "return=minimal"); }
+    public void actualizar(Stage stage) throws Exception {
+        Stage before=supabase.getList("stages?select=id,project_id,name,position,status&id=eq."+stage.getId(),Stage.class).stream().findFirst().orElse(null);
+        supabase.patch("stages?id=eq." + stage.getId(), fields(stage), "return=minimal");
+        if(before!=null&&"completada".equals(stage.getStatus())&&!"completada".equals(before.getStatus())){
+            com.example.proyectolp.service.GamificationRuntime.service().stageCompleted(stage.getId());
+            List<Stage> all=listarPorProyecto(stage.getProjectId());
+            if(!all.isEmpty()&&all.stream().allMatch(s->"completada".equals(s.getStatus())))com.example.proyectolp.service.GamificationRuntime.service().projectCompleted(stage.getProjectId());
+        }
+    }
     public void eliminar(long id) throws Exception { supabase.delete("stages?id=eq." + id); }
 
     /** Sincroniza altas, bajas, nombres, estados y orden del formulario. */

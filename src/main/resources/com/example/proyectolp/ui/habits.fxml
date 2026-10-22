@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <BorderPane fx:id="habitsRoot" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.HabitsController">
     <top><VBox spacing="12"><padding><Insets top="18" right="22" bottom="14" left="22"/></padding>
-        <HBox alignment="CENTER_LEFT" spacing="14"><Button text="← Dashboard" onAction="#volverDashboard"/><Label text="Hábitos" style="-fx-font-size: 24px; -fx-font-weight: bold;"/><HBox HBox.hgrow="ALWAYS"/><Button fx:id="btnNewHabit" text="Nuevo hábito" onAction="#nuevoHabito"/></HBox>
+        <HBox alignment="CENTER_LEFT" spacing="14"><Button text="← Dashboard" onAction="#volverDashboard"/><Label text="Hábitos" style="-fx-font-size: 24px; -fx-font-weight: bold;"/><HBox HBox.hgrow="ALWAYS"/><Button fx:id="btnNewHabit" text="Nuevo hábito" onAction="#nuevoHabito"/><fx:include source="session-menu.fxml"/></HBox>
         <HBox alignment="CENTER_LEFT" spacing="10"><Label text="Día a marcar:"/><DatePicker fx:id="dateSelected"/><CheckBox fx:id="chkShowInactive" text="Mostrar inactivos"/><Button fx:id="btnEdit" text="Editar" onAction="#editarHabito"/><Button fx:id="btnToggleActive" text="Desactivar" onAction="#activarDesactivar"/><Label fx:id="lblMessage" wrapText="true" style="-fx-text-fill: #555;"/></HBox>
     </VBox></top>
     <center><GridPane hgap="14" vgap="12" style="-fx-padding: 0 22 20 22;">

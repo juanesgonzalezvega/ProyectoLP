@@ -32,6 +32,8 @@ public class ProjectFormController {
         if (project != null) {
             txtName.setText(project.getName()); txtGoal.setText(project.getMainGoal()); dateDeadline.setValue(project.getDeadline());
             stages.setAll(project.getStages().stream().map(this::copyStage).toList());
+        } else {
+            for (String name : List.of("Por empezar", "En proceso", "Finalizado")) { Stage stage = new Stage(); stage.setName(name); stage.setStatus("pendiente"); stage.setPosition(stages.size() + 1); stages.add(stage); }
         }
         Button save = (Button) dialogPane.lookupButton(ButtonType.OK);
         save.setText("Guardar");

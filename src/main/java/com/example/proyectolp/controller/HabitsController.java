@@ -8,6 +8,7 @@ import com.example.proyectolp.model.HabitSummary;
 import com.example.proyectolp.repository.HabitRepository;
 import com.example.proyectolp.service.HabitStatisticsService;
 import com.example.proyectolp.service.SupabaseService;
+import com.example.proyectolp.service.SessionTaskExecutor;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -41,7 +42,7 @@ public class HabitsController {
     @FXML private Label lblMessage, lblHistoryTitle;
     @FXML private Parent habitsRoot;
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> { Thread t = new Thread(r, "habits-worker"); t.setDaemon(true); return t; });
+    private final ExecutorService executor = SessionTaskExecutor.get();
     private final HabitStatisticsService statisticsService = new HabitStatisticsService();
     private final ObservableList<HabitSummary> allRows = FXCollections.observableArrayList();
     private FilteredList<HabitSummary> filteredRows;

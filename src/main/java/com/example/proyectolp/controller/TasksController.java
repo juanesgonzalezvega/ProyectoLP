@@ -6,6 +6,7 @@ import com.example.proyectolp.model.TaskItem;
 import com.example.proyectolp.repository.ProjectRepository;
 import com.example.proyectolp.repository.TaskRepository;
 import com.example.proyectolp.service.SupabaseService;
+import com.example.proyectolp.service.SessionTaskExecutor;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -28,7 +29,7 @@ public class TasksController {
     @FXML private ComboBox<String> cmbFilter;
     @FXML private Button btnNew, btnEdit, btnDelete, btnComplete;
     @FXML private Label lblMessage;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> { Thread t = new Thread(r, "tasks-worker"); t.setDaemon(true); return t; });
+    private final ExecutorService executor = SessionTaskExecutor.get();
     private List<Project> projects = List.of();
     private Parent dashboardView;
     private DashboardController dashboardController;

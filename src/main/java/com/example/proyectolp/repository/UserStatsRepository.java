@@ -1,0 +1,3 @@
+package com.example.proyectolp.repository;
+import com.example.proyectolp.model.UserStats;import com.example.proyectolp.service.SupabaseService;import java.util.*;
+public class UserStatsRepository {private final SupabaseService db;public UserStatsRepository(SupabaseService d){db=d;}public UserStats get()throws Exception{List<UserStats> x=db.getList("user_stats?select=*",UserStats.class);return x.isEmpty()?new UserStats():x.get(0);}public void save(UserStats s)throws Exception{Map<String,Object> v=new LinkedHashMap<>();v.put("current_streak",s.current_streak);v.put("best_streak",s.best_streak);v.put("last_activity_date",s.last_activity_date);v.put("last_penalty_for",s.last_penalty_for);db.patch("user_stats",v,"return=minimal");}}

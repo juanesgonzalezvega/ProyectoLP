@@ -34,7 +34,7 @@ public class FinancesController {
     @FXML private BarChart<String,Number> chartEvolution;
     @FXML private VBox boxGoals;
     @FXML private Button btnEditMovement,btnDeleteMovement,btnEditGoal,btnDeleteGoal,btnContribute;
-    private final ExecutorService executor=Executors.newSingleThreadExecutor(r->{Thread t=new Thread(r,"finance-worker");t.setDaemon(true);return t;});
+    private final ExecutorService executor=SessionTaskExecutor.get();
     private final FinanceCalculationService calculations=new FinanceCalculationService();
     private List<FinancialMovement> allMovements=List.of();private List<FinancialGoal> goals=List.of();private Parent dashboardView;private DashboardController dashboardController;
     @FXML private void initialize(){colType.setCellValueFactory(c->new javafx.beans.property.SimpleStringProperty(c.getValue().getType()==FinancialMovement.Type.INGRESO?"Ingreso":"Gasto"));colAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));colDate.setCellValueFactory(new PropertyValueFactory<>("date"));colCategory.setCellValueFactory(new PropertyValueFactory<>("category"));colDescription.setCellValueFactory(new PropertyValueFactory<>("description"));cmbFilterType.getItems().setAll("Todos","Ingresos","Gastos");cmbFilterType.setValue("Todos");cmbFilterType.setOnAction(e->aplicarFiltros());txtFilterCategory.textProperty().addListener((o,a,b)->aplicarFiltros());txtFilterMonth.textProperty().addListener((o,a,b)->aplicarFiltros());tblMovements.getSelectionModel().selectedItemProperty().addListener((o,a,b)->updateMovementButtons());updateMovementButtons();cargar();}

@@ -1,0 +1,3 @@
+package com.example.proyectolp.service;
+import java.time.LocalDate;
+public final class StreakRules {private StreakRules(){}public record Transition(int current,int best,LocalDate last){ }public static Transition action(int current,int best,LocalDate last,LocalDate today){int next=last==null||!last.equals(today.minusDays(1))&&!last.equals(today)?1:last.equals(today)?current:current+1;return new Transition(next,Math.max(best,next),today);}public static boolean lost(LocalDate last,LocalDate penalizedFor,LocalDate today){return last!=null&&last.isBefore(today.minusDays(1))&&!last.equals(penalizedFor);}}

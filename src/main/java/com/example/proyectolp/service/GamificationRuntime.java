@@ -1,0 +1,3 @@
+package com.example.proyectolp.service;
+import java.time.*;
+public final class GamificationRuntime {private static volatile GamificationService service;private static volatile StreakService streak;private GamificationRuntime(){}public static void initialize(SupabaseService db){Clock c=Clock.system(ZoneId.of("America/Bogota"));NotificationService.getInstance();service=new GamificationService(db,c);streak=new StreakService(db,c);}public static void clear(){service=null;streak=null;}public static GamificationService service(){if(service==null)throw new IllegalStateException("Gamificación no inicializada");return service;}public static StreakService streak(){if(streak==null)throw new IllegalStateException("Racha no inicializada");return streak;}}

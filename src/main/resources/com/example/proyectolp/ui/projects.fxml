@@ -17,6 +17,7 @@
         <Button text="← Dashboard" onAction="#volverDashboard"/>
         <Label text="Proyectos" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
         <HBox HBox.hgrow="ALWAYS"/>
+        <fx:include source="session-menu.fxml"/>
         <Button text="Nuevo proyecto" onAction="#nuevoProyecto"/>
     </HBox></top>
     <center><GridPane hgap="14" vgap="10" style="-fx-padding: 0 22 18 22;">

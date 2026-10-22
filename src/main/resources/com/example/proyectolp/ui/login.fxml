@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.LoginController" alignment="CENTER" spacing="12" prefWidth="420" prefHeight="460">
+ <padding><Insets top="30" right="36" bottom="30" left="36"/></padding>
+ <Label text="Sistema integral de organización personal" style="-fx-font-size: 20px; -fx-font-weight: bold;" wrapText="true"/>
+ <TextField fx:id="emailField" promptText="Correo electrónico" maxWidth="300"/>
+ <PasswordField fx:id="passwordField" promptText="Contraseña" maxWidth="300" onAction="#login"/>
+ <CheckBox fx:id="rememberCheck" text="Recordarme en este equipo"/>
+ <Label fx:id="messageLabel" wrapText="true" style="-fx-text-fill: #b42318;"/>
+ <ProgressIndicator fx:id="loadingIndicator" visible="false" managed="false" prefWidth="28" prefHeight="28"/>
+ <Button fx:id="loginButton" text="Iniciar sesión" onAction="#login" defaultButton="true" maxWidth="300"/>
+ <Button text="Crear cuenta" onAction="#openRegister" maxWidth="300"/>
+</VBox>

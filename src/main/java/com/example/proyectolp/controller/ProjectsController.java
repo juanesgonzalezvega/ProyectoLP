@@ -7,6 +7,7 @@ import com.example.proyectolp.repository.ProjectRepository;
 import com.example.proyectolp.repository.StageRepository;
 import com.example.proyectolp.service.ProjectProgressService;
 import com.example.proyectolp.service.SupabaseService;
+import com.example.proyectolp.service.SessionTaskExecutor;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
@@ -34,7 +35,7 @@ public class ProjectsController {
     @FXML private ComboBox<String> cmbStageStatus;
     @FXML private Button btnUpdateStage, btnEdit, btnDelete;
     @FXML private Parent projectsRoot;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> { Thread t = new Thread(r, "projects-worker"); t.setDaemon(true); return t; });
+    private final ExecutorService executor = SessionTaskExecutor.get();
     private final ProjectProgressService progressService = new ProjectProgressService();
     private Parent dashboardView;
     private DashboardController dashboardController;

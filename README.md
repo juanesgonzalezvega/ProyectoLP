@@ -80,3 +80,68 @@ Todos los FXML se pueden abrir desde SceneBuilder con **File > Open** dentro de 
 - `src/test/`: pruebas JUnit locales, sin conexión a Supabase.
 
 Las políticas `anon` son exclusivamente temporales de desarrollo. Antes de desplegar, configura autenticación, `user_id` y políticas RLS por usuario.
+# Fase 7: Entrenamiento físico
+
+El módulo de Entrenamiento permite mantener rutinas con ejercicios, registrar sesiones y series, calcular volumen como `peso × repeticiones` por cada serie, consultar progresión y revisar distribución muscular. La pantalla incluye descanso configurable de 90 segundos con pausa y reinicio. El Dashboard comparte el cálculo de sesiones y volumen semanal mediante `TrainingStatsService`.
+
+## Preparar y probar
+
+1. Ejecuta el SQL idempotente `supabase/00_schema.sql` en el editor SQL de Supabase. Las políticas `dev_anon_all` son temporales y solo apropiadas para desarrollo.
+2. Inicia la aplicación con `./mvnw javafx:run` (Windows: `mvnw.cmd javafx:run`) y abre **Entrenamiento** desde el Dashboard.
+3. Crea o edita dos rutinas con varios ejercicios. Inicia una sesión, registra cada serie y finalízala; revisa las pestañas de Progresión y Estadísticas y vuelve al Dashboard para confirmar el resumen semanal.
+4. En la pestaña Sesión, cambia el descanso, inicia, pausa y reinicia el temporizador.
+5. Las pruebas sin conexión cubren volúmenes, período, comparación de progresión, distribución y estado inicial/reinicio del temporizador: `mvn test`.
+
+## Datos de prueba recomendados
+
+Crea al menos 2 rutinas y 4–6 sesiones distribuidas en distintas semanas. Usa ejercicios repetidos entre sesiones (por ejemplo, Press banca y Sentadilla) y sube gradualmente peso, repeticiones o series. Incluye pecho, espalda, piernas y core para que el PieChart muestre proporciones distintas. Una serie de 40 kg × 8 repeticiones aporta 320 kg·reps.
+# Fase 8: créditos, progreso y recompensas
+
+La equivalencia es 1 crédito = $2.000 COP. El saldo se calcula sumando `credit_ledger`; los eventos usan `dedupe_key` y no otorgan crédito retroactivo. La racha se actualiza desde el listener central de escrituras de `SupabaseService`, con fecha en `America/Bogota`. Recompensas incluye historial, equivalente COP, XP, nivel, rango, insignias y misiones diarias. La lista de comercios es informativa; no existe canje real.
+
+## Probar la Fase 8
+
+1. Ejecuta `supabase/00_schema.sql` en Supabase; las políticas `dev_anon_all` siguen siendo temporales para desarrollo.
+2. Configura `config.properties` localmente y ejecuta `mvnw.cmd javafx:run` en Windows (o `./mvnw javafx:run`).
+3. Completa un hábito con fecha de hoy, una tarea con y sin proyecto, y una etapa. Comprueba el saldo en el Dashboard y en **Recompensas**. Desmarca/reabre y vuelve a completar para confirmar la idempotencia.
+4. Aporta a una meta de al menos $60.000 COP cruzando varios hitos. Revisa el historial para cada crédito otorgado.
+5. Registra entrenamientos, movimientos financieros y eventos para progresar las misiones. Los créditos no se otorgan por XP, misiones, niveles ni insignias.
+6. Pruebas puras sin red: `mvn test`.
+
+Para simular una racha perdida en un entorno de desarrollo, reemplaza las fechas con una fecha de hace tres días y establece la racha deseada. Al abrir la app o hacer una acción se ejecuta la penalización una sola vez:
+
+```sql
+update public.user_stats
+set current_streak = 12,
+    best_streak = greatest(best_streak, 12),
+    last_activity_date = ((now() at time zone 'America/Bogota')::date - 3),
+    last_penalty_for = null
+where user_id = '00000000-0000-0000-0000-000000000000'::uuid;
+```
+
+Reemplaza el UUID por el `id` de la cuenta que estás probando (puedes consultarlo en Authentication → Users).
+
+La regla de penalización divide el saldo entre 3 para una racha de 12 y redondea hacia abajo. El registro aparece como movimiento negativo en el historial de créditos.
+
+# Fase 9: autenticación y aislamiento por usuario
+
+La app usa Supabase Auth por REST y la anon/publishable key configurada en `config.properties`. Al llamar PostgREST agrega el access token del usuario como `Authorization: Bearer …`; la base aplica RLS por `user_id = auth.uid()`. La contraseña nunca se guarda. **Recordarme** persiste solo el refresh token en `~/.proyectolp/session.refresh` con permisos restringidos cuando el sistema operativo lo admite.
+
+## Configuración de Supabase y migración
+
+1. En Supabase abre **Authentication → Sign In / Providers → Email** y activa el proveedor Email. Decide el valor de **Confirm email**: desactivado permite entrar inmediatamente; activado solicita confirmar el correo antes de iniciar sesión.
+2. Ejecuta `supabase/00_schema.sql` solo si preparas una base nueva. Para una base existente que ya ejecuta la fase anterior, ejecuta `supabase/09_auth_multiusuario.sql` en el editor SQL.
+3. En `09_auth_multiusuario.sql`, revisa los bloques comentados A (reasignar datos heredados a un UUID de `auth.users`) y B (eliminarlos). Si quieres conservarlos, descomenta A y cambia el UUID; el script asigna todos los registros huérfanos de las tablas cubiertas a esa cuenta. Si quieres empezar limpio, descomenta B.
+4. Crea la primera cuenta en la aplicación. Con confirmación activa, revisa el correo y vuelve al login.
+5. Cuando no queden registros con `user_id` nulo, ejecuta `supabase/09_auth_multiusuario_cierre.sql`. El script informa la tabla y cantidad que impiden cerrar la migración.
+6. Configura `supabase.url` y `supabase.key` en `config.properties` con la clave pública/anon del proyecto; no uses secretos privilegiados.
+
+## Prueba de dos cuentas
+
+Registra las cuentas A y B. Con A crea una tarea, un proyecto, un hábito marcado, un movimiento y meta financiera, una rutina/sesión, y valida créditos, XP, racha, insignias y misiones. Cierra sesión y entra como B: su Dashboard y módulos deben iniciar vacíos. Crea datos B, vuelve a entrar con A y verifica que solo reaparecen los de A.
+
+Para la comprobación directa, toma el access token de cada sesión desde una herramienta de desarrollo sin publicarlo. Envía a `GET /rest/v1/tasks?select=*` los headers `apikey: <clave pública>` y `Authorization: Bearer <token B>`: no debe devolver tareas de A. Un `PATCH`/`DELETE` filtrado por el id de una fila de A bajo el token B no debe cambiarla. Con solo `apikey` y sin `Authorization`, las tablas deben rechazar o devolver cero filas por las políticas RLS y permisos anon. No compartas tokens ni los guardes en logs.
+
+La limitación conocida es que una FK que apunta solo a un `id` todavía puede referenciar un registro de otra cuenta aunque RLS impida leerlo; validar pertenencia en FKs compuestas queda como trabajo futuro. También quedan para trabajo futuro la recuperación de contraseña, OAuth, ranking y la validación de pertenencia de todas las FKs. Fase 9 no incorpora agenda, calendario, Pomodoro, recordatorios ni voz.
+
+Las pruebas de autenticación usan un transporte HTTP simulado y no requieren red: `mvnw.cmd test` (Windows) o `./mvnw test`.

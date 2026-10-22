@@ -1,0 +1,3 @@
+package com.example.proyectolp.repository;
+import com.example.proyectolp.service.SupabaseService;import java.util.*;
+public class UserBadgeRepository {private final SupabaseService db;public UserBadgeRepository(SupabaseService d){db=d;}public Set<String> list()throws Exception{return new HashSet<>(db.getList("user_badges?select=badge_code",Row.class).stream().map(r->r.badge_code).toList());}public boolean unlock(String code)throws Exception{return !db.insertIgnore("user_badges?on_conflict=user_id,badge_code",Map.of("badge_code",code),Row.class).isEmpty();}public static class Row{public String badge_code;public Row(){}}}

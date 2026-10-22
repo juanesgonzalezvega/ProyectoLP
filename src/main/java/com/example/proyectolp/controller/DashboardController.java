@@ -11,7 +11,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import java.time.*;
-import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,18 +22,20 @@ public class DashboardController {
     @FXML private VBox boxProyectos, boxHabitos;
     @FXML private Label lblProyectosError, lblHabitosError, lblRacha, lblRachaError;
     @FXML private Label lblFinancialBalance, lblFinancialError;
+    @FXML private Label lblCreditsBalance, lblCreditsCop, lblRewardStreak, lblRewardLevel, lblXpText, lblNotification;
+    @FXML private ProgressBar xpProgress;
     @FXML private Button btnActualizar;
     @FXML private Button btnTareas;
     @FXML private Button btnProyectos;
     @FXML private Button btnHabitos;
     @FXML private Button btnFinanzas;
+    @FXML private Label lblTrainingSummary, lblTrainingError;
     @FXML private Parent dashboardRoot;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> { Thread t = new Thread(r, "dashboard-loader"); t.setDaemon(true); return t; });
+    private final ExecutorService executor = SessionTaskExecutor.get();
     private final ProjectProgressService progressService = new ProjectProgressService();
-    private final ProductivityStreakService streakService = new ProductivityStreakService();
     private final FinanceCalculationService financeService = new FinanceCalculationService();
 
-    @FXML private void initialize() { refrescar(); }
+    @FXML private void initialize() { lblNotification.textProperty().bind(NotificationService.getInstance().messageProperty()); refrescar(); }
 
     @FXML private void abrirTareas() {
         try {
@@ -77,6 +78,16 @@ public class DashboardController {
         } catch (IOException e) { lblFinancialError.setText("No se pudo abrir Finanzas."); }
     }
 
+    @FXML private void abrirEntrenamiento() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/proyectolp/ui/training.fxml"));
+            Parent view = loader.load();
+            loader.<TrainingController>getController().setDashboard(dashboardRoot, this);
+            dashboardRoot.getScene().setRoot(view);
+        } catch (IOException e) { lblTrainingError.setText("No se pudo abrir Entrenamiento."); }
+    }
+    @FXML private void abrirRecompensas() { try { FXMLLoader l=new FXMLLoader(getClass().getResource("/com/example/proyectolp/ui/rewards.fxml")); Parent view=l.load(); l.<RewardsController>getController().setDashboard(dashboardRoot,this); dashboardRoot.getScene().setRoot(view); } catch(IOException e) { lblTrainingError.setText("No se pudo abrir Recompensas."); } }
+
     /** Recarga todos los datos visibles desde Supabase. */
     public void refrescar() {
         btnActualizar.setDisable(true);
@@ -101,6 +112,10 @@ public class DashboardController {
                         movements.addAll(new ExpenseRepository(supabase).listar());
                         data.financialBalance = financeService.balance(movements).available();
                     } catch (Exception e) { data.financeError = readable(e); }
+                    try { data.trainingSessions = new WorkoutSessionRepository(supabase).list(); data.trainingSets = new WorkoutSetRepository(supabase).list(); }
+                    catch (Exception e) { data.trainingError = readable(e); }
+                    try { data.creditBalance=new CreditLedgerRepository(supabase).balance(); data.xpTotal=new XpLogRepository(supabase).total(); data.userStats=new UserStatsRepository(supabase).get(); }
+                    catch(Exception e){data.rewardError=readable(e);}
                     return data;
                 }
             };
@@ -113,7 +128,7 @@ public class DashboardController {
     }
 
     private void render(DashboardData data) {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(java.time.ZoneId.of("America/Bogota"));
         if (data.taskError == null) {
             int pending = 0, progress = 0, done = 0, overdue = 0;
             for (TaskItem task : data.tasks) {
@@ -169,24 +184,19 @@ public class DashboardController {
             lblHabitosError.setText("");
         } else lblHabitosError.setText(data.habitError);
 
-        if (data.taskError == null && data.habitError == null) {
-            Set<LocalDate> activity = new HashSet<>();
-            for (TaskItem task : data.tasks) if ("completada".equals(task.getStatus())) parseDate(task.getCreatedAt()).ifPresent(activity::add);
-            for (HabitLog log : data.logs) if (log.isCompleted() && log.getLogDate() != null) activity.add(log.getLogDate());
-            lblRacha.setText(Integer.toString(streakService.calculate(activity, today)));
-            lblRachaError.setText("días consecutivos");
-        } else lblRachaError.setText("No fue posible cargar tareas y hábitos.");
+        if(data.rewardError==null){String streak=data.userStats.current_streak+" actual · "+data.userStats.best_streak+" mejor";lblRacha.setText(streak);lblRewardStreak.setText("Racha: "+streak);lblRachaError.setText("días consecutivos");lblCreditsBalance.setText(data.creditBalance+" créditos");lblCreditsCop.setText(cop(data.creditBalance*CreditRules.COP_PER_CREDIT));int level=LevelCurve.level(data.xpTotal);lblRewardLevel.setText("Nivel "+level+" · "+LevelCurve.rank(level));lblXpText.setText(data.xpTotal+" XP · "+LevelCurve.xpToNext(data.xpTotal)+" para el siguiente nivel");xpProgress.setProgress(LevelCurve.progress(data.xpTotal));}else lblRachaError.setText(data.rewardError);
         if (data.financeError == null) {
             lblFinancialBalance.setText("$" + data.financialBalance.setScale(2, java.math.RoundingMode.HALF_UP).toPlainString());
             lblFinancialError.setText("");
         } else { lblFinancialBalance.setText("Sin datos" ); lblFinancialError.setText(data.financeError); }
+        if (data.trainingError == null) {
+            LocalDate monday = today.with(java.time.DayOfWeek.MONDAY);
+            TrainingStatsService.Summary summary = new TrainingStatsService().summary(data.trainingSessions, data.trainingSets, monday, today);
+            lblTrainingSummary.setText(summary.sessions() + " sesiones · " + summary.volume().toPlainString() + " kg·reps esta semana");
+            lblTrainingError.setText("");
+        } else { lblTrainingSummary.setText("Sin datos"); lblTrainingError.setText(data.trainingError); }
     }
 
-    private static Optional<LocalDate> parseDate(String value) {
-        if (value == null || value.isBlank()) return Optional.empty();
-        try { return Optional.of(OffsetDateTime.parse(value).toLocalDate()); }
-        catch (DateTimeParseException ignored) { try { return Optional.of(LocalDateTime.parse(value).toLocalDate()); } catch (DateTimeParseException e) { return Optional.empty(); } }
-    }
     private static String readable(Throwable e) {
         if (e instanceof SupabaseException s) {
             if (s.getStatusCode() == 401 || s.getStatusCode() == 403) return "Supabase rechazó el acceso. Revisa la clave y las políticas RLS.";
@@ -204,5 +214,8 @@ public class DashboardController {
         java.math.BigDecimal financialBalance = java.math.BigDecimal.ZERO;
         String financeError;
         String taskError, projectError, habitError;
+        int creditBalance,xpTotal; UserStats userStats=new UserStats(); String rewardError;
+        List<TrainingModels.Session> trainingSessions = List.of(); List<TrainingModels.SetEntry> trainingSets = List.of(); String trainingError;
     }
+    private static String cop(int value){return java.text.NumberFormat.getCurrencyInstance(java.util.Locale.forLanguageTag("es-CO")).format(value);}
 }
