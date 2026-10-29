@@ -35,7 +35,7 @@
             <Label fx:id="lblSelectedDeadline" text=""/>
             <ProgressBar fx:id="barProgress" progress="0" maxWidth="Infinity"/>
             <Label fx:id="lblProgressText" text="Sin etapas"/>
-            <HBox spacing="8"><Button fx:id="btnEdit" text="Editar" onAction="#editarProyecto"/><Button fx:id="btnDelete" text="Eliminar" onAction="#eliminarProyecto"/></HBox>
+            <HBox spacing="8"><Button fx:id="btnEdit" text="Editar" onAction="#editarProyecto"/><Button fx:id="btnAttachments" text="Adjuntos" onAction="#openAttachments"/><Button fx:id="btnDelete" text="Eliminar" onAction="#eliminarProyecto"/></HBox>
         </VBox>
         <VBox spacing="8" style="-fx-background-color: white; -fx-border-color: #d9dee7; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 16;" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <Label text="Etapas" style="-fx-font-size: 17px; -fx-font-weight: bold;"/>

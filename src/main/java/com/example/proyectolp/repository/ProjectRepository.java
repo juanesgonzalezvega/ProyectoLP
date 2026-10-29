@@ -44,7 +44,10 @@ public class ProjectRepository {
         supabase.patch("projects?id=eq." + project.getId(), fields(project), "return=minimal");
     }
 
-    public void eliminar(long id) throws Exception { supabase.delete("projects?id=eq." + id); }
+    public void eliminar(long id) throws Exception {
+        new com.example.proyectolp.service.AttachmentService(supabase).deleteAllFor(com.example.proyectolp.model.enums.AttachmentOwnerType.PROJECT,id);
+        supabase.delete("projects?id=eq." + id);
+    }
 
     public List<Stage> findStages() throws Exception { return stageRepository.listar(); }
 

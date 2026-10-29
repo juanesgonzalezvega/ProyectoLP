@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
@@ -20,5 +21,41 @@
   <Tab text="Progreso" closable="false"><VBox spacing="12" style="-fx-padding: 20;"><Label fx:id="xpLabel"/><Label fx:id="levelLabel" style="-fx-font-size: 22px; -fx-font-weight: bold;"/><Label fx:id="rankLabel"/><ProgressBar fx:id="levelProgress" maxWidth="Infinity"/><Label fx:id="nextLevelLabel"/><Label fx:id="streakLabel"/><Label fx:id="penaltyLabel" wrapText="true"/></VBox></Tab>
   <Tab text="Insignias" closable="false"><FlowPane fx:id="badgeGrid" hgap="12" vgap="12" style="-fx-padding: 20;"/></Tab>
   <Tab text="Misiones" closable="false"><ListView fx:id="missionList"/></Tab>
+  <Tab text="Redimir" closable="false">
+   <ScrollPane fitToWidth="true">
+    <content>
+     <FlowPane hgap="12" vgap="12" style="-fx-padding: 20;">
+      <Button fx:id="btnRappi" text="Rappi" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnDidi" text="Didi" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnUber" text="Uber" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnKfc" text="KFC" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnFrisby" text="Frisby" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnPpc" text="PPC" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnBuffaloWings" text="Buffalo Wings" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnMcDonalds" text="McDonald's" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnBurgerKing" text="Burger King" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnElCorral" text="El Corral" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnPresto" text="Presto" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnSubway" text="Subway" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnQbano" text="Qbano" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnSandwichQbano" text="Sandwich Qbano" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnDominosPizza" text="Domino's Pizza" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnPapaJohns" text="Papa John's" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnLittleCeasars" text="Little Ceasars" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnPizzaHut" text="Pizza Hut" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnJenosPizza" text="Jeno's Pizza" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnCrepesWaffles" text="Crepes &amp; Waffles" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnJuanValdezCafe" text="Juan Valdez Café" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnStarbucks" text="Starbucks" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnDunkin" text="Dunkin'" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnCinnabon" text="Cinnabon" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnPopsy" text="Popsy" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnMimos" text="Mimo's" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnCosechas" text="Cosechas" prefWidth="170" prefHeight="48"/>
+      <Button fx:id="btnBaskinRobbins" text="Baskin-Robbins" prefWidth="170" prefHeight="48"/>
+     </FlowPane>
+    </content>
+   </ScrollPane>
+  </Tab>
  </TabPane></center>
 </BorderPane>

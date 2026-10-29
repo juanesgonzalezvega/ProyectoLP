@@ -20,7 +20,10 @@ public class TaskRepository {
         supabase.patch("tasks?id=eq." + task.getId(), fields(task), "return=minimal");
         if(before!=null&&"completada".equals(task.getStatus())&&!"completada".equals(before.getStatus()))com.example.proyectolp.service.GamificationRuntime.service().taskCompleted(task.getId(),task.getProjectId()!=null);
     }
-    public void eliminar(long id) throws Exception { supabase.delete("tasks?id=eq." + id); }
+    public void eliminar(long id) throws Exception {
+        new com.example.proyectolp.service.AttachmentService(supabase).deleteAllFor(com.example.proyectolp.model.enums.AttachmentOwnerType.TASK,id);
+        supabase.delete("tasks?id=eq." + id);
+    }
     private Map<String, Object> fields(TaskItem task) {
         Map<String, Object> values = new LinkedHashMap<>();
         values.put("name", task.getName()); values.put("description", task.getDescription());

@@ -30,6 +30,7 @@ public class DashboardController {
     @FXML private Button btnHabitos;
     @FXML private Button btnFinanzas;
     @FXML private Label lblTrainingSummary, lblTrainingError;
+    @FXML private Label lblQuoteText, lblQuoteAuthor, lblQuoteStatus;
     @FXML private Parent dashboardRoot;
     private final ExecutorService executor = SessionTaskExecutor.get();
     private final ProjectProgressService progressService = new ProjectProgressService();
@@ -90,6 +91,7 @@ public class DashboardController {
 
     /** Recarga todos los datos visibles desde Supabase. */
     public void refrescar() {
+        cargarFrase();
         btnActualizar.setDisable(true);
         lblTareasError.setText("Cargando tareas…"); lblProyectosError.setText("Cargando proyectos…");
         lblHabitosError.setText("Cargando hábitos…"); lblRachaError.setText("Calculando racha…");
@@ -124,6 +126,40 @@ public class DashboardController {
             executor.submit(load);
         } catch (Exception e) {
             showAllErrors(readable(e)); btnActualizar.setDisable(false);
+        }
+    }
+
+    private void cargarFrase() {
+        if (lblQuoteStatus == null) return;
+        QuoteService.getInstance().todayAsync(executor).thenAccept(result -> javafx.application.Platform.runLater(() -> {
+            if (result.isEmpty()) {
+                lblQuoteText.setText("Frase del día no disponible");
+                lblQuoteText.setTooltip(null);
+                lblQuoteAuthor.setText("");
+                lblQuoteStatus.setText("Traducción no disponible; no hay una frase guardada.");
+                return;
+            }
+            DailyQuote quote = result.get();
+            boolean translated = quote.translationStatus() == DailyQuote.TranslationStatus.TRANSLATED
+                    && quote.translatedText() != null && !quote.translatedText().isBlank();
+            lblQuoteText.setText("“" + quote.displayText() + "”");
+            lblQuoteText.setTooltip(new Tooltip(quote.text()));
+            lblQuoteAuthor.setText(quote.author().isBlank() ? "" : "— " + quote.author());
+            if (!translated) lblQuoteStatus.setText((quote.origin() == DailyQuote.Origin.STALE ? "Frase guardada del " + quote.date() + " · " : "") + "Traducción no disponible; se muestra el original en inglés");
+            else if (quote.origin() == DailyQuote.Origin.STALE) lblQuoteStatus.setText("Frase guardada del " + quote.date());
+            else lblQuoteStatus.setText("Traducción automática · MyMemory");
+        }));
+    }
+
+    @FXML private void abrirZenQuotes() {
+        if (!com.example.proyectolp.MainApp.openLink("https://zenquotes.io/")) {
+            lblQuoteStatus.setText("No se pudo abrir ZenQuotes en el navegador.");
+        }
+    }
+
+    @FXML private void abrirMyMemory() {
+        if (!com.example.proyectolp.MainApp.openLink("https://mymemory.translated.net/")) {
+            lblQuoteStatus.setText("No se pudo abrir MyMemory en el navegador.");
         }
     }
 

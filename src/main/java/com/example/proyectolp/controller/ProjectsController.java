@@ -33,7 +33,7 @@ public class ProjectsController {
     @FXML private ProgressBar barProgress;
     @FXML private ListView<Stage> listProjectStages;
     @FXML private ComboBox<String> cmbStageStatus;
-    @FXML private Button btnUpdateStage, btnEdit, btnDelete;
+    @FXML private Button btnUpdateStage, btnEdit, btnDelete, btnAttachments;
     @FXML private Parent projectsRoot;
     private final ExecutorService executor = SessionTaskExecutor.get();
     private final ProjectProgressService progressService = new ProjectProgressService();
@@ -58,6 +58,7 @@ public class ProjectsController {
 
     @FXML private void nuevoProyecto() { abrirFormulario(null); }
     @FXML private void editarProyecto() { Project selected = selectedProject(); if (selected != null) abrirFormulario(selected); }
+    @FXML private void openAttachments() { Project selected = selectedProject(); if (selected != null) AttachmentsDialog.show(tblProjects.getScene().getWindow(), com.example.proyectolp.model.enums.AttachmentOwnerType.PROJECT, selected.getId(), "Adjuntos del proyecto"); }
 
     @FXML private void eliminarProyecto() {
         Project project = selectedProject(); if (project == null) return;
@@ -151,7 +152,7 @@ public class ProjectsController {
     }
 
     private Project selectedProject() { return tblProjects.getSelectionModel().getSelectedItem(); }
-    private void updateSelectionControls() { boolean has = tblProjects != null && selectedProject() != null; if (btnEdit != null) btnEdit.setDisable(!has); if (btnDelete != null) btnDelete.setDisable(!has); }
+    private void updateSelectionControls() { boolean has = tblProjects != null && selectedProject() != null; if (btnEdit != null) btnEdit.setDisable(!has); if (btnDelete != null) btnDelete.setDisable(!has); if (btnAttachments != null) btnAttachments.setDisable(!has); }
     private void updateStageControls() {
         boolean has = listProjectStages != null && listProjectStages.getSelectionModel().getSelectedItem() != null;
         if (btnUpdateStage != null) btnUpdateStage.setDisable(!has);

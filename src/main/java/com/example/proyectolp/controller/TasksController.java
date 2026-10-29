@@ -27,7 +27,7 @@ public class TasksController {
     @FXML private TableColumn<TaskItem, String> colName, colPriority, colStatus, colDueDate, colCategory;
     @FXML private TableColumn<TaskItem, Integer> colProgress;
     @FXML private ComboBox<String> cmbFilter;
-    @FXML private Button btnNew, btnEdit, btnDelete, btnComplete;
+    @FXML private Button btnNew, btnEdit, btnDelete, btnComplete, btnAttachments;
     @FXML private Label lblMessage;
     private final ExecutorService executor = SessionTaskExecutor.get();
     private List<Project> projects = List.of();
@@ -54,6 +54,7 @@ public class TasksController {
 
     @FXML private void nuevaTarea() { abrirFormulario(null); }
     @FXML private void editarTarea() { TaskItem selected = tblTasks.getSelectionModel().getSelectedItem(); if (selected != null) abrirFormulario(selected); }
+    @FXML private void openAttachments(){TaskItem selected=tblTasks.getSelectionModel().getSelectedItem();if(selected==null)return;AttachmentsDialog.show(tblTasks.getScene().getWindow(),com.example.proyectolp.model.enums.AttachmentOwnerType.TASK,selected.getId(),"Adjuntos de la tarea");}
     @FXML private void completarTarea() {
         TaskItem selected = tblTasks.getSelectionModel().getSelectedItem();
         if (selected == null) return;
@@ -131,6 +132,7 @@ public class TasksController {
         boolean selected = tblTasks != null && tblTasks.getSelectionModel().getSelectedItem() != null;
         if (btnEdit != null) btnEdit.setDisable(!selected); if (btnDelete != null) btnDelete.setDisable(!selected);
         if (btnComplete != null) btnComplete.setDisable(!selected || "completada".equals(tblTasks.getSelectionModel().getSelectedItem().getStatus()));
+        if (btnAttachments != null) btnAttachments.setDisable(!selected);
     }
-    private void setBusy(boolean busy) { btnNew.setDisable(busy || projects == null); btnEdit.setDisable(busy || tblTasks.getSelectionModel().getSelectedItem() == null); btnDelete.setDisable(busy || tblTasks.getSelectionModel().getSelectedItem() == null); btnComplete.setDisable(busy || tblTasks.getSelectionModel().getSelectedItem() == null); }
+    private void setBusy(boolean busy) { btnNew.setDisable(busy || projects == null); btnEdit.setDisable(busy || tblTasks.getSelectionModel().getSelectedItem() == null); btnDelete.setDisable(busy || tblTasks.getSelectionModel().getSelectedItem() == null); btnComplete.setDisable(busy || tblTasks.getSelectionModel().getSelectedItem() == null); btnAttachments.setDisable(busy || tblTasks.getSelectionModel().getSelectedItem() == null); }
 }

@@ -145,3 +145,26 @@ Para la comprobación directa, toma el access token de cada sesión desde una he
 La limitación conocida es que una FK que apunta solo a un `id` todavía puede referenciar un registro de otra cuenta aunque RLS impida leerlo; validar pertenencia en FKs compuestas queda como trabajo futuro. También quedan para trabajo futuro la recuperación de contraseña, OAuth, ranking y la validación de pertenencia de todas las FKs. Fase 9 no incorpora agenda, calendario, Pomodoro, recordatorios ni voz.
 
 Las pruebas de autenticación usan un transporte HTTP simulado y no requieren red: `mvnw.cmd test` (Windows) o `./mvnw test`.
+
+## TRM (d�lar)
+
+La pesta�a **D�lar (TRM)** consulta el conjunto oficial `32sa-8pi3` de [datos.gov.co](https://www.datos.gov.co/resource/32sa-8pi3.json), con datos calculados y certificados por la Superintendencia Financiera de Colombia. La API SODA es p�blica; no requiere token de aplicaci�n. La configuraci�n opcional `trm.app.token` puede usarse como cabecera `X-App-Token` si el proveedor la recomienda o exige en el futuro.
+
+El valor se selecciona por su rango de vigencia en la zona `America/Bogota`; para fines de semana y festivos se conserva la vigencia que los cubre. Si a�n no existe un valor para hoy se muestra el �ltimo publicado. El cach� persistente est� en `~/.proyectolp/trm-cache.json`; sin conexi�n se presenta el �ltimo dato guardado, incluso vencido, y si no hay cach� se muestran equivalentes como `�`.
+
+Las conversiones y equivalencias usan la TRM actual, no la tasa del d�a de cada movimiento. La TRM es una tasa de referencia y no necesariamente el precio de compra o venta de una casa de cambio.
+
+## Frase del día (ZenQuotes)
+
+El Dashboard consulta una frase diaria en inglés desde `https://zenquotes.io/api/today` y la traduce al español automáticamente con MyMemory. La tarjeta conserva el autor sin traducir; el original en inglés aparece solo al pasar el cursor sobre la frase. La traducción automática puede ser imperfecta. La atribución enlaza a [ZenQuotes API](https://zenquotes.io/) y [MyMemory](https://mymemory.translated.net/).
+
+MyMemory permite hasta 5.000 caracteres diarios por IP sin correo de contacto y 50.000 con el correo de contacto opcional del desarrollador en `mymemory.email` dentro de `config.properties`. Cada petición admite hasta 500 bytes; la aplicación divide textos largos en fragmentos menores. La traducción se guarda junto con la frase en `~/.proyectolp/zenquotes-cache.json` y no se vuelve a pedir ese día.
+
+Si MyMemory falla, agota su cuota o tarda más de ocho segundos, el Dashboard muestra la frase original en inglés con un aviso discreto. La frase pública en caché se conserva entre sesiones. ZenQuotes limita el nivel gratuito a cinco solicitudes cada 30 segundos por IP y entrega datos almacenados en caché que se actualizan cada hora; la app consulta como máximo una vez al día.
+## Adjuntos
+
+Se pueden adjuntar a tareas, proyectos y sesiones de entrenamiento imágenes JPG/JPEG, PNG, GIF y BMP (máximo 10 MiB), audio MP3, WAV, AIFF y M4A (25 MiB), y video MP4/M4V (45 MiB). Cada elemento admite hasta 10 archivos. La app comprueba extensión, tamaño y firma binaria; los videos recomendados usan MP4 con H.264 y AAC. H.265, WebM, MKV y AVI no se reproducen en el reproductor integrado; guarda una copia para abrirlos en otra aplicación.
+
+Ejecuta supabase/10_adjuntos.sql en el SQL Editor del proyecto. El script crea el bucket privado ttachments con límite de 50 MiB y políticas de lectura, subida y borrado para la carpeta del usuario autenticado. El cliente nunca usa service_role. Valida el aislamiento con dos cuentas: A sube un adjunto; B no debe ver su fila y, con su propio token, un GET a /storage/v1/object/authenticated/attachments/<ruta-de-A> debe ser rechazado. Las subidas mayores de 6 MB usan transferencia estándar; Supabase recomienda TUS para archivos grandes.
+
+Los archivos descargados se guardan en un directorio temporal privado de la sesión y se borran al cerrar sesión o la aplicación. Si se elimina una fila o un objeto directamente desde el panel de Supabase, pueden quedar archivos huérfanos. PDF y otros documentos no están admitidos. El límite del plan gratuito es 50 MB por archivo, aunque el bucket restringe a 50 MiB y la aplicación aplica límites menores por formato.

@@ -26,6 +26,7 @@
     </TableView></center>
     <bottom><HBox alignment="CENTER_RIGHT" spacing="10"><padding><Insets top="12" right="22" bottom="18" left="22"/></padding>
         <Button fx:id="btnComplete" text="Completar" onAction="#completarTarea"/>
+        <Button fx:id="btnAttachments" text="Adjuntos" onAction="#openAttachments"/>
         <Button fx:id="btnEdit" text="Editar" onAction="#editarTarea"/>
         <Button fx:id="btnDelete" text="Eliminar" onAction="#eliminarTarea"/>
     </HBox></bottom>
