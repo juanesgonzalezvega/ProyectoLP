@@ -10,55 +10,55 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<BorderPane fx:id="dashboardRoot" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.DashboardController">
+<BorderPane stylesheets="@../css/theme.css" fx:id="dashboardRoot" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.DashboardController" styleClass="app-bg">
     <top><HBox alignment="CENTER_LEFT" spacing="16"><padding><Insets top="18" right="22" bottom="12" left="22"/></padding>
-        <Label text="Dashboard" style="-fx-font-size: 24px; -fx-font-weight: bold;"/><HBox HBox.hgrow="ALWAYS"/><Button fx:id="btnTareas" text="Tareas" onAction="#abrirTareas"/><Button fx:id="btnProyectos" text="Proyectos" onAction="#abrirProyectos"/><Button fx:id="btnHabitos" text="Hábitos" onAction="#abrirHabitos"/><Button fx:id="btnActualizar" text="Actualizar" onAction="#refrescar"/>
+        <Label text="Dashboard" styleClass="h2"/><HBox HBox.hgrow="ALWAYS"/><Button fx:id="btnTareas" text="Tareas" onAction="#abrirTareas"/><Button fx:id="btnProyectos" text="Proyectos" onAction="#abrirProyectos"/><Button fx:id="btnHabitos" text="Hábitos" onAction="#abrirHabitos"/><Button fx:id="btnActualizar" text="Actualizar" onAction="#refrescar"/>
         <Button fx:id="btnFinanzas" text="Finanzas" onAction="#abrirFinanzas"/>
         <Button text="Entrenamiento" onAction="#abrirEntrenamiento"/>
         <Button text="Recompensas" onAction="#abrirRecompensas"/>
         <fx:include source="session-menu.fxml"/>
     </HBox></top>
-    <center><ScrollPane fitToWidth="true"><content><GridPane hgap="14" vgap="14" style="-fx-padding: 10 22 22 22;">
+    <center><ScrollPane fitToWidth="true"><content><GridPane hgap="14" vgap="14">
         <columnConstraints><ColumnConstraints percentWidth="50"/><ColumnConstraints percentWidth="50"/></columnConstraints>
-        <VBox spacing="9" style="-fx-background-color: white; -fx-border-color: #d9dee7; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 16;" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Label text="Tareas" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+        <VBox spacing="9" styleClass="card" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label text="Tareas" styleClass="h2"/>
             <GridPane hgap="12" vgap="10">
                 <Label text="Pendientes" GridPane.columnIndex="0" GridPane.rowIndex="0"/><Label fx:id="lblPendientes" text="—" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
                 <Label text="En progreso" GridPane.columnIndex="0" GridPane.rowIndex="1"/><Label fx:id="lblEnProgreso" text="—" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
                 <Label text="Completadas" GridPane.columnIndex="0" GridPane.rowIndex="2"/><Label fx:id="lblCompletadas" text="—" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
                 <Label text="Vencidas" GridPane.columnIndex="0" GridPane.rowIndex="3"/><Label fx:id="lblVencidas" text="—" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-            </GridPane><Label fx:id="lblTareasError" wrapText="true" style="-fx-text-fill: #b42318;"/>
+            </GridPane><Label fx:id="lblTareasError" wrapText="true" styleClass="text-error"/>
         </VBox>
-        <VBox spacing="9" style="-fx-background-color: white; -fx-border-color: #d9dee7; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 16;" GridPane.columnIndex="1" GridPane.rowIndex="0">
-            <Label text="Proyectos activos" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-            <VBox fx:id="boxProyectos" spacing="12"/><Label fx:id="lblProyectosError" wrapText="true" style="-fx-text-fill: #b42318;"/>
+        <VBox spacing="9" styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label text="Proyectos activos" styleClass="h2"/>
+            <VBox fx:id="boxProyectos" spacing="12"/><Label fx:id="lblProyectosError" wrapText="true" styleClass="text-error"/>
         </VBox>
-        <VBox spacing="9" style="-fx-background-color: white; -fx-border-color: #d9dee7; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 16;" GridPane.columnIndex="0" GridPane.rowIndex="1">
-            <Label text="Hábitos de hoy" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-            <VBox fx:id="boxHabitos" spacing="8"/><Label fx:id="lblHabitosError" wrapText="true" style="-fx-text-fill: #b42318;"/>
+        <VBox spacing="9" styleClass="card" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <Label text="Hábitos de hoy" styleClass="h2"/>
+            <VBox fx:id="boxHabitos" spacing="8"/><Label fx:id="lblHabitosError" wrapText="true" styleClass="text-error"/>
         </VBox>
-        <VBox alignment="CENTER" spacing="8" style="-fx-background-color: white; -fx-border-color: #d9dee7; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 16;" GridPane.columnIndex="1" GridPane.rowIndex="1">
-            <Label text="Racha de productividad" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-            <Label fx:id="lblRacha" text="—" style="-fx-font-size: 48px; -fx-font-weight: bold;"/>
+        <VBox alignment="CENTER" spacing="8" styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label text="Racha de productividad" styleClass="h2"/>
+            <Label fx:id="lblRacha" text="—" styleClass="h2"/>
             <Label fx:id="lblRachaError" text="días consecutivos" wrapText="true"/>
         </VBox>
-        <VBox alignment="CENTER_LEFT" spacing="8" style="-fx-background-color: white; -fx-border-color: #d9dee7; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 16;" GridPane.columnIndex="0" GridPane.rowIndex="2">
-            <Label text="Estado financiero" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-            <Label fx:id="lblFinancialBalance" text="—" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-            <Button text="Abrir Finanzas" onAction="#abrirFinanzas"/><Label fx:id="lblFinancialError" wrapText="true" style="-fx-text-fill: #b42318;"/>
+        <VBox alignment="CENTER_LEFT" spacing="8" styleClass="card" GridPane.columnIndex="0" GridPane.rowIndex="2">
+            <Label text="Estado financiero" styleClass="h2"/>
+            <Label fx:id="lblFinancialBalance" text="—" styleClass="h2"/>
+            <Button text="Abrir Finanzas" onAction="#abrirFinanzas"/><Label fx:id="lblFinancialError" wrapText="true" styleClass="text-error"/>
         </VBox>
-        <VBox alignment="CENTER_LEFT" spacing="8" style="-fx-background-color: white; -fx-border-color: #d9dee7; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 16;" GridPane.columnIndex="1" GridPane.rowIndex="2">
-            <Label text="Entrenamiento" style="-fx-font-size: 18px; -fx-font-weight: bold;"/><Label fx:id="lblTrainingSummary" text="—"/><Button text="Abrir Entrenamiento" onAction="#abrirEntrenamiento"/><Label fx:id="lblTrainingError" wrapText="true" style="-fx-text-fill: #b42318;"/>
+        <VBox alignment="CENTER_LEFT" spacing="8" styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <Label text="Entrenamiento" styleClass="h2"/><Label fx:id="lblTrainingSummary" text="—"/><Button text="Abrir Entrenamiento" onAction="#abrirEntrenamiento"/><Label fx:id="lblTrainingError" wrapText="true" styleClass="text-error"/>
         </VBox>
-        <VBox alignment="CENTER_LEFT" spacing="8" style="-fx-background-color: white; -fx-border-color: #d9dee7; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 16;" GridPane.columnIndex="0" GridPane.rowIndex="3">
-            <Label text="Créditos y racha" style="-fx-font-size: 18px; -fx-font-weight: bold;"/><Label fx:id="lblCreditsBalance" text="—"/><Label fx:id="lblCreditsCop" text="—"/><Label fx:id="lblRewardStreak" text="—"/><Label fx:id="lblRewardLevel" text="—"/><ProgressBar fx:id="xpProgress" progress="0" maxWidth="Infinity"/><Label fx:id="lblXpText" text="—"/><Button text="Ver recompensas" onAction="#abrirRecompensas"/>
+        <VBox alignment="CENTER_LEFT" spacing="8" styleClass="card" GridPane.columnIndex="0" GridPane.rowIndex="3">
+            <Label text="Créditos y racha" styleClass="h2"/><Label fx:id="lblCreditsBalance" text="—"/><Label fx:id="lblCreditsCop" text="—"/><Label fx:id="lblRewardStreak" text="—"/><Label fx:id="lblRewardLevel" text="—"/><ProgressBar fx:id="xpProgress" progress="0" maxWidth="Infinity"/><Label fx:id="lblXpText" text="—"/><Button text="Ver recompensas" onAction="#abrirRecompensas"/>
         </VBox>
-        <Label fx:id="lblNotification" GridPane.columnIndex="1" GridPane.rowIndex="3" wrapText="true" style="-fx-text-fill: #176b45; -fx-font-size: 16px; -fx-padding: 16;"/>
-        <VBox spacing="9" style="-fx-background-color: white; -fx-border-color: #d9dee7; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 16;" GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.columnSpan="2">
-            <Label text="Frase del día" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-            <Label fx:id="lblQuoteText" text="Cargando frase…" wrapText="true" style="-fx-font-size: 17px; -fx-font-style: italic; -fx-text-fill: #344054;"/>
-            <Label fx:id="lblQuoteAuthor" wrapText="true" style="-fx-font-size: 13px;"/>
-            <Label fx:id="lblQuoteStatus" text="" style="-fx-font-size: 10px; -fx-text-fill: #667085;"/>
+        <Label fx:id="lblNotification" GridPane.columnIndex="1" GridPane.rowIndex="3" wrapText="true" styleClass="text-muted"/>
+        <VBox spacing="9" styleClass="card" GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.columnSpan="2">
+            <Label text="Frase del día" styleClass="h2"/>
+            <Label fx:id="lblQuoteText" text="Cargando frase…" wrapText="true" styleClass="text-muted"/>
+            <Label fx:id="lblQuoteAuthor" wrapText="true"/>
+            <Label fx:id="lblQuoteStatus" text="" styleClass="text-muted"/>
             <HBox alignment="CENTER_LEFT"><Label text="Inspirational quotes provided by "/><Hyperlink text="ZenQuotes API" onAction="#abrirZenQuotes"/></HBox>
             <HBox alignment="CENTER_LEFT"><Label text="Traducción automática: "/><Hyperlink text="MyMemory" onAction="#abrirMyMemory"/></HBox>
         </VBox>

@@ -100,7 +100,7 @@ public class HabitsController {
             dialog.setHeaderText(existing == null ? "Crea un hábito" : "Actualiza el hábito");
             dialog.initOwner(tblHabits.getScene().getWindow()); dialog.initModality(Modality.WINDOW_MODAL);
             dialog.setDialogPane(pane); dialog.setResultConverter(button -> button == ButtonType.OK ? form.buildHabit() : null);
-            dialog.showAndWait().ifPresent(habit -> {
+            com.example.proyectolp.config.Theme.apply(dialog); dialog.showAndWait().ifPresent(habit -> {
                 String action = existing == null ? "creado" : "actualizado";
                 runRepository(repo -> { if (existing == null) repo.crear(habit); else repo.actualizar(habit); },
                         "No se pudo guardar el hábito.", "Hábito " + action + ".");

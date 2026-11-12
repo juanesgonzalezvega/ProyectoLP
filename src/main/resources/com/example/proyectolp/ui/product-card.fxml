@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<VBox spacing="8" stylesheets="@../css/theme.css" styleClass="card" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.ProductCardController">
+ <Label fx:id="kindLabel" styleClass="kicker"/><Label fx:id="nameLabel" styleClass="h2"/><Label fx:id="descriptionLabel" wrapText="true"/><Label fx:id="costLabel"/><Label fx:id="copLabel" styleClass="text-muted"/><Label fx:id="missingLabel"/><Button fx:id="redeemButton" text="REDIMIR CRÉDITOS" onAction="#redeem" styleClass="btn-primary"/>
+</VBox>

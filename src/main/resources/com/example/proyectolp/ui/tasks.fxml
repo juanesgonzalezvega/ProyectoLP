@@ -8,10 +8,10 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.TasksController">
+<BorderPane stylesheets="@../css/theme.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.TasksController" styleClass="app-bg">
     <top><VBox spacing="14"><padding><Insets top="18" right="22" bottom="12" left="22"/></padding>
-        <HBox alignment="CENTER_LEFT" spacing="14"><Button text="← Dashboard" onAction="#volverDashboard"/><Label text="Tareas" style="-fx-font-size: 24px; -fx-font-weight: bold;"/><HBox HBox.hgrow="ALWAYS"/><Button fx:id="btnNew" text="Nueva tarea" onAction="#nuevaTarea"/><fx:include source="session-menu.fxml"/></HBox>
-        <HBox alignment="CENTER_LEFT" spacing="10"><Label text="Filtrar por estado:"/><ComboBox fx:id="cmbFilter" prefWidth="180"/><Label fx:id="lblMessage" wrapText="true" style="-fx-text-fill: #555;"/></HBox>
+        <HBox alignment="CENTER_LEFT" spacing="14"><Button text="← Dashboard" onAction="#volverDashboard"/><Label text="Tareas" styleClass="h2"/><HBox HBox.hgrow="ALWAYS"/><Button fx:id="btnNew" text="Nueva tarea" onAction="#nuevaTarea"/><fx:include source="session-menu.fxml"/></HBox>
+        <HBox alignment="CENTER_LEFT" spacing="10"><Label text="Filtrar por estado:"/><ComboBox fx:id="cmbFilter" prefWidth="180"/><Label fx:id="lblMessage" wrapText="true" styleClass="text-muted"/></HBox>
     </VBox></top>
     <center><TableView fx:id="tblTasks">
         <columns>

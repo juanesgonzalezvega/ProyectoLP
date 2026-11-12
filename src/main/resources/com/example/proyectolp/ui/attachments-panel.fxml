@@ -10,14 +10,14 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.AttachmentsPanelController" spacing="10" prefWidth="850" prefHeight="560">
+<VBox stylesheets="@../css/theme.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.AttachmentsPanelController" spacing="10" prefWidth="850" prefHeight="560" styleClass="app-bg">
     <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
     <HBox alignment="CENTER_LEFT" spacing="8"><Button fx:id="uploadButton" text="Adjuntar archivo…" onAction="#chooseFiles"/><Button text="Guardar copia…" fx:id="saveButton" onAction="#saveCopy"/><Button text="Eliminar" fx:id="deleteButton" onAction="#deleteSelected"/><ProgressIndicator fx:id="busyIndicator" prefWidth="22" prefHeight="22" visible="false" managed="false"/><Label fx:id="messageLabel" wrapText="true"/></HBox>
     <HBox spacing="12" VBox.vgrow="ALWAYS">
         <ListView fx:id="attachmentList" prefWidth="350" HBox.hgrow="NEVER"/>
         <VBox spacing="8" HBox.hgrow="ALWAYS">
             <Label fx:id="previewStatus" text="Selecciona un adjunto para previsualizar." wrapText="true"/>
-            <StackPane VBox.vgrow="ALWAYS" style="-fx-background-color: #f4f5f7;">
+            <StackPane VBox.vgrow="ALWAYS">
                 <ImageView fx:id="imagePreview" fitWidth="450" fitHeight="350" preserveRatio="true" smooth="true"/>
                 <MediaView fx:id="mediaView" fitWidth="450" fitHeight="350" preserveRatio="true"/>
             </StackPane>

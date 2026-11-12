@@ -20,7 +20,7 @@ import java.util.Map;
 public class SupabaseService {
     public interface WriteListener { void beforeBusinessWrite(String table) throws Exception; void afterBusinessWrite(String table) throws Exception; }
     private static volatile WriteListener writeListener;
-    private static final java.util.Set<String> BUSINESS_TABLES = java.util.Set.of("projects","stages","tasks","habits","habit_logs","income","expenses","financial_goals","workout_routines","exercises","workout_sessions","workout_sets","attachments");
+    private static final java.util.Set<String> BUSINESS_TABLES = java.util.Set.of("projects","stages","tasks","habits","habit_logs","income","expenses","financial_goals","workout_routines","exercises","workout_sessions","workout_sets","attachments","redemptions","rpc");
     public static void setWriteListener(WriteListener listener) { writeListener = listener; }
     private final AppConfig config;
     private final HttpTransport transport;
@@ -39,6 +39,7 @@ public class SupabaseService {
     public <T> List<T> getList(String path, Class<T> type) throws IOException, InterruptedException, SupabaseException { return mapper.readValue(send("GET",path,null,"").body(),listType(type)); }
     public <T> T get(String path,TypeReference<T> type)throws IOException,InterruptedException,SupabaseException{return mapper.readValue(send("GET",path,null,"").body(),type);}
     public String post(String path,Object value,String prefer)throws IOException,InterruptedException,SupabaseException{return send("POST",path,json(value),prefer).body();}
+    public <T> T post(String path,Object value,Class<T> type)throws IOException,InterruptedException,SupabaseException{return mapper.readValue(send("POST",path,json(value),null).body(),type);}
     public <T> List<T> postList(String path,Object value,String prefer,Class<T> type)throws IOException,InterruptedException,SupabaseException{return mapper.readValue(send("POST",path,json(value),prefer).body(),listType(type));}
     public <T> List<T> insertIgnore(String path,Object value,Class<T> type)throws IOException,InterruptedException,SupabaseException {
         String body=send("POST",path,json(value),"resolution=ignore-duplicates,return=representation").body();

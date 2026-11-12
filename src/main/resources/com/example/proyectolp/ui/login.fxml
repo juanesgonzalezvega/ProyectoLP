@@ -3,17 +3,19 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.LoginController" alignment="CENTER" spacing="12" prefWidth="420" prefHeight="460">
+<VBox stylesheets="@../css/theme.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.LoginController" alignment="CENTER" spacing="12" prefWidth="420" prefHeight="460" styleClass="app-bg">
  <padding><Insets top="30" right="36" bottom="30" left="36"/></padding>
- <Label text="Sistema integral de organización personal" style="-fx-font-size: 20px; -fx-font-weight: bold;" wrapText="true"/>
+ <Label text="Sistema integral de organización personal" styleClass="h2" wrapText="true"/>
  <TextField fx:id="emailField" promptText="Correo electrónico" maxWidth="300"/>
  <PasswordField fx:id="passwordField" promptText="Contraseña" maxWidth="300" onAction="#login"/>
+ <Hyperlink fx:id="forgotLink" text="&#x00BF;Olvid&#xF3; su contrase&#xF1;a?" onAction="#openForgotPassword"/>
  <CheckBox fx:id="rememberCheck" text="Recordarme en este equipo"/>
- <Label fx:id="messageLabel" wrapText="true" style="-fx-text-fill: #b42318;"/>
+ <Label fx:id="messageLabel" wrapText="true" styleClass="text-error"/>
  <ProgressIndicator fx:id="loadingIndicator" visible="false" managed="false" prefWidth="28" prefHeight="28"/>
  <Button fx:id="loginButton" text="Iniciar sesión" onAction="#login" defaultButton="true" maxWidth="300"/>
  <Button text="Crear cuenta" onAction="#openRegister" maxWidth="300"/>

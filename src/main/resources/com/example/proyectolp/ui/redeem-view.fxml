@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="12" stylesheets="@../css/theme.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.RedeemController">
+ <HBox spacing="10"><VBox><Label styleClass="kicker" text="SALDO DISPONIBLE" /><Label fx:id="balanceLabel" styleClass="h2" /><Label fx:id="copLabel" /></VBox><Label styleClass="text-muted" wrapText="true" /><Button contentDisplay="CENTER" onAction="#showHistory" text="MIS CANJES" /></HBox>
+ <Label fx:id="statusLabel" wrapText="true" />
+ <StackPane>
+  <ScrollPane fx:id="merchantPane" fitToWidth="true"><content><FlowPane fx:id="merchantList" hgap="12" vgap="12" /></content></ScrollPane>
+  <ScrollPane fx:id="menuPane" fitToWidth="true" managed="false" visible="false"><content><VBox fx:id="menuHost" /></content></ScrollPane>
+  <ScrollPane fx:id="historyPane" fitToWidth="true" managed="false" visible="false"><content><VBox spacing="8"><Button onAction="#showMerchants" text="VOLVER" /><FlowPane fx:id="historyList" hgap="10" vgap="10" /></VBox></content></ScrollPane>
+ </StackPane>
+</VBox>

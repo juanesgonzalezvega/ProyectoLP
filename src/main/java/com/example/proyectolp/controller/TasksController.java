@@ -64,7 +64,7 @@ public class TasksController {
         TaskItem selected = tblTasks.getSelectionModel().getSelectedItem(); if (selected == null) return;
         Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, "¿Eliminar la tarea «" + selected.getName() + "»?", ButtonType.CANCEL, ButtonType.OK);
         confirmation.setTitle("Confirmar eliminación"); confirmation.setHeaderText("Eliminar tarea"); confirmation.initOwner(tblTasks.getScene().getWindow());
-        if (confirmation.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+        com.example.proyectolp.config.Theme.apply(confirmation); if (confirmation.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
         btnDelete.setDisable(true); lblMessage.setText("Eliminando tarea…");
         runRepository(repo -> { repo.eliminar(selected.getId()); return null; }, ignored -> cargarTareas(), "Tarea eliminada.");
     }
@@ -88,7 +88,7 @@ public class TasksController {
             dialog.initOwner(tblTasks.getScene().getWindow()); dialog.initModality(Modality.WINDOW_MODAL);
             dialog.setDialogPane(pane);
             dialog.setResultConverter(button -> button == ButtonType.OK ? form.buildTask() : null);
-            dialog.showAndWait().ifPresent(task -> guardarAsync(task, creating));
+            com.example.proyectolp.config.Theme.apply(dialog); dialog.showAndWait().ifPresent(task -> guardarAsync(task, creating));
         } catch (IOException e) { lblMessage.setText("No se pudo abrir el formulario: " + e.getMessage()); }
     }
 

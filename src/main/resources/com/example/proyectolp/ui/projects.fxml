@@ -12,15 +12,15 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<BorderPane fx:id="projectsRoot" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.ProjectsController">
+<BorderPane stylesheets="@../css/theme.css" fx:id="projectsRoot" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.ProjectsController" styleClass="app-bg">
     <top><HBox alignment="CENTER_LEFT" spacing="14"><padding><Insets top="18" right="22" bottom="14" left="22"/></padding>
         <Button text="← Dashboard" onAction="#volverDashboard"/>
-        <Label text="Proyectos" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+        <Label text="Proyectos" styleClass="h2"/>
         <HBox HBox.hgrow="ALWAYS"/>
         <fx:include source="session-menu.fxml"/>
         <Button text="Nuevo proyecto" onAction="#nuevoProyecto"/>
     </HBox></top>
-    <center><GridPane hgap="14" vgap="10" style="-fx-padding: 0 22 18 22;">
+    <center><GridPane hgap="14" vgap="10">
         <columnConstraints><ColumnConstraints percentWidth="48"/><ColumnConstraints percentWidth="52"/></columnConstraints>
         <TableView fx:id="tblProjects" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.rowSpan="2">
             <columns>
@@ -30,18 +30,18 @@
             </columns>
             <placeholder><Label text="No hay proyectos. Crea uno para comenzar."/></placeholder>
         </TableView>
-        <VBox spacing="10" style="-fx-background-color: white; -fx-border-color: #d9dee7; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 16;" GridPane.columnIndex="1" GridPane.rowIndex="0">
-            <Label fx:id="lblSelectedName" text="Selecciona un proyecto" style="-fx-font-size: 19px; -fx-font-weight: bold;"/>
+        <VBox spacing="10" styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label fx:id="lblSelectedName" text="Selecciona un proyecto" styleClass="h2"/>
             <Label fx:id="lblSelectedDeadline" text=""/>
             <ProgressBar fx:id="barProgress" progress="0" maxWidth="Infinity"/>
             <Label fx:id="lblProgressText" text="Sin etapas"/>
             <HBox spacing="8"><Button fx:id="btnEdit" text="Editar" onAction="#editarProyecto"/><Button fx:id="btnAttachments" text="Adjuntos" onAction="#openAttachments"/><Button fx:id="btnDelete" text="Eliminar" onAction="#eliminarProyecto"/></HBox>
         </VBox>
-        <VBox spacing="8" style="-fx-background-color: white; -fx-border-color: #d9dee7; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 16;" GridPane.columnIndex="1" GridPane.rowIndex="1">
-            <Label text="Etapas" style="-fx-font-size: 17px; -fx-font-weight: bold;"/>
+        <VBox spacing="8" styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label text="Etapas" styleClass="h2"/>
             <ListView fx:id="listProjectStages" prefHeight="220" VBox.vgrow="ALWAYS"/>
             <HBox alignment="CENTER_LEFT" spacing="8"><Label text="Estado:"/><ComboBox fx:id="cmbStageStatus" prefWidth="170"/><Button fx:id="btnUpdateStage" text="Guardar estado" onAction="#guardarEstadoEtapa"/></HBox>
         </VBox>
     </GridPane></center>
-    <bottom><Label fx:id="lblMessage" wrapText="true" style="-fx-padding: 0 22 14 22; -fx-text-fill: #555;"/></bottom>
+    <bottom><Label fx:id="lblMessage" wrapText="true" styleClass="text-muted"/></bottom>
 </BorderPane>

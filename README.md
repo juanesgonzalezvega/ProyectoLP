@@ -146,21 +146,14 @@ La limitación conocida es que una FK que apunta solo a un `id` todavía puede r
 
 Las pruebas de autenticación usan un transporte HTTP simulado y no requieren red: `mvnw.cmd test` (Windows) o `./mvnw test`.
 
-## TRM (d�lar)
+## TRM (d&oacute;lar)
 
-La pesta�a **D�lar (TRM)** consulta el conjunto oficial `32sa-8pi3` de [datos.gov.co](https://www.datos.gov.co/resource/32sa-8pi3.json), con datos calculados y certificados por la Superintendencia Financiera de Colombia. La API SODA es p�blica; no requiere token de aplicaci�n. La configuraci�n opcional `trm.app.token` puede usarse como cabecera `X-App-Token` si el proveedor la recomienda o exige en el futuro.
+La pesta&ntilde;a **D&oacute;lar (TRM)** consulta el conjunto oficial `32sa-8pi3` de [datos.gov.co](https://www.datos.gov.co/resource/32sa-8pi3.json), con datos calculados y certificados por la Superintendencia Financiera de Colombia. La API SODA es p&uacute;blica; no requiere token de aplicaci&oacute;n. La configuraci&oacute;n opcional `trm.app.token` puede usarse como cabecera `X-App-Token` si el proveedor la recomienda o exige en el futuro.
 
-El valor se selecciona por su rango de vigencia en la zona `America/Bogota`; para fines de semana y festivos se conserva la vigencia que los cubre. Si a�n no existe un valor para hoy se muestra el �ltimo publicado. El cach� persistente est� en `~/.proyectolp/trm-cache.json`; sin conexi�n se presenta el �ltimo dato guardado, incluso vencido, y si no hay cach� se muestran equivalentes como `�`.
+El valor se selecciona por su rango de vigencia en la zona `America/Bogota`; para fines de semana y festivos se conserva la vigencia que los cubre. Si a&uacute;n no existe un valor para hoy se muestra el &uacute;ltimo publicado. El cach&eacute; persistente est&aacute; en `~/.proyectolp/trm-cache.json`; sin conexi&oacute;n se presenta el &uacute;ltimo dato guardado, incluso vencido, y si no hay cach&eacute; se muestran equivalentes como `?`.
 
-Las conversiones y equivalencias usan la TRM actual, no la tasa del d�a de cada movimiento. La TRM es una tasa de referencia y no necesariamente el precio de compra o venta de una casa de cambio.
+Las conversiones y equivalencias usan la TRM actual, no la tasa del d&iacute;a de cada movimiento. La TRM es una tasa de referencia y no necesariamente el precio de compra o venta de una casa de cambio.
 
-## Frase del día (ZenQuotes)
-
-El Dashboard consulta una frase diaria en inglés desde `https://zenquotes.io/api/today` y la traduce al español automáticamente con MyMemory. La tarjeta conserva el autor sin traducir; el original en inglés aparece solo al pasar el cursor sobre la frase. La traducción automática puede ser imperfecta. La atribución enlaza a [ZenQuotes API](https://zenquotes.io/) y [MyMemory](https://mymemory.translated.net/).
-
-MyMemory permite hasta 5.000 caracteres diarios por IP sin correo de contacto y 50.000 con el correo de contacto opcional del desarrollador en `mymemory.email` dentro de `config.properties`. Cada petición admite hasta 500 bytes; la aplicación divide textos largos en fragmentos menores. La traducción se guarda junto con la frase en `~/.proyectolp/zenquotes-cache.json` y no se vuelve a pedir ese día.
-
-Si MyMemory falla, agota su cuota o tarda más de ocho segundos, el Dashboard muestra la frase original en inglés con un aviso discreto. La frase pública en caché se conserva entre sesiones. ZenQuotes limita el nivel gratuito a cinco solicitudes cada 30 segundos por IP y entrega datos almacenados en caché que se actualizan cada hora; la app consulta como máximo una vez al día.
 ## Adjuntos
 
 Se pueden adjuntar a tareas, proyectos y sesiones de entrenamiento imágenes JPG/JPEG, PNG, GIF y BMP (máximo 10 MiB), audio MP3, WAV, AIFF y M4A (25 MiB), y video MP4/M4V (45 MiB). Cada elemento admite hasta 10 archivos. La app comprueba extensión, tamaño y firma binaria; los videos recomendados usan MP4 con H.264 y AAC. H.265, WebM, MKV y AVI no se reproducen en el reproductor integrado; guarda una copia para abrirlos en otra aplicación.
@@ -168,3 +161,79 @@ Se pueden adjuntar a tareas, proyectos y sesiones de entrenamiento imágenes JPG
 Ejecuta supabase/10_adjuntos.sql en el SQL Editor del proyecto. El script crea el bucket privado ttachments con límite de 50 MiB y políticas de lectura, subida y borrado para la carpeta del usuario autenticado. El cliente nunca usa service_role. Valida el aislamiento con dos cuentas: A sube un adjunto; B no debe ver su fila y, con su propio token, un GET a /storage/v1/object/authenticated/attachments/<ruta-de-A> debe ser rechazado. Las subidas mayores de 6 MB usan transferencia estándar; Supabase recomienda TUS para archivos grandes.
 
 Los archivos descargados se guardan en un directorio temporal privado de la sesión y se borran al cerrar sesión o la aplicación. Si se elimina una fila o un objeto directamente desde el panel de Supabase, pueden quedar archivos huérfanos. PDF y otros documentos no están admitidos. El límite del plan gratuito es 50 MB por archivo, aunque el bucket restringe a 50 MiB y la aplicación aplica límites menores por formato.
+
+
+
+
+## Tema visual
+
+La interfaz usa fondo `#141416`, superficies `#1c1c1f`, tinte cálido `#2a1619`, texto blanco y carmesí `#d62839` (variantes `#e63946` y `#7a0f1a`). Errores: coral `#ff6b6b`; éxito `#3ecf8e`; advertencia `#f5a524`.
+
+Las clases se definen en `src/main/resources/com/example/proyectolp/css/theme.css`. En una pantalla nueva, agrega `stylesheets="@../css/theme.css"` al nodo raíz del FXML dentro de `ui/` y reutiliza sus clases. SceneBuilder resuelve la ruta relativa al FXML; abre ese archivo para previsualizarlo. Montserrat TTF es opcional: descarga los pesos estáticos Regular, Medium, SemiBold y Bold desde [Google Fonts](https://github.com/google/fonts/tree/main/ofl/montserrat) y guárdalos en `src/main/resources/com/example/proyectolp/fonts/` como `Montserrat-Regular.ttf`, `Montserrat-Medium.ttf`, `Montserrat-SemiBold.ttf` y `Montserrat-Bold.ttf`. Segoe UI y Arial son los respaldos.
+
+## Recuperar contraseña
+
+La recuperación usa un OTP de seis dígitos que Supabase envía por correo. La contraseña actual nunca se solicita ni se envía: Supabase conserva un hash bcrypt irreversible. Tras validar el código, la app cambia la clave con una sesión temporal, la revoca con alcance local y vuelve al login sin iniciar sesión automáticamente.
+
+### Configuración de Supabase
+
+1. En **Authentication → SMTP Settings**, configura SMTP personalizado para entregar correo a usuarios fuera del equipo del proyecto. El proveedor integrado solo envía a miembros del equipo y limita actualmente el proyecto completo a 2 correos por hora. Para permitir hasta 5 correos por hora, configura SMTP personalizado y luego fija **Authentication → Rate Limits → Emails sent** en `5` por hora. El proveedor integrado no permite elevar su cuota a 5; cambiar el cliente no elimina ese límite de Supabase.
+2. En **Authentication → Email Templates → Reset Password**, establece:
+
+   **Asunto:** `Código para restablecer tu contraseña`
+   **Cuerpo:**
+
+   ```html
+   <h2>Restablece tu contraseña</h2><p>Tu código de verificación es:</p><h1>{{ .Token }}</h1><p>Si no lo solicitaste, ignora este correo.</p>
+   ```
+
+   `{{ .Token }}` contiene el OTP de seis dígitos; no incluyas `{{ .ConfirmationURL }}` en esta plantilla. La app llama a `/auth/v1/recover` sin `redirect_to`; si el correo abre una página `localhost`, la plantilla de Supabase todavía está usando el enlace de confirmación. Sustituye el cuerpo anterior, guarda los cambios y solicita un correo nuevo: el código aparecerá dentro del mensaje y se escribe en la pantalla de recuperación de la app.
+3. Revisa **Authentication → Rate Limits**. Configura el límite agregado de correos a `5` por hora (requiere SMTP personalizado). Supabase aplica por defecto 60 segundos entre solicitudes de recuperación por usuario. La app aplica esa espera y además limita localmente cada cuenta a 5 correos por hora.
+4. Ejecuta `supabase/11_recuperacion.sql` después de los scripts existentes. Crea `public.get_account_status`, que devuelve solo el estado de cuenta a PostgREST.
+5. Mantén **Confirm email** activado si quieres exigir confirmación. Desactivado, Supabase establece `email_confirmed_at` para las cuentas nuevas y se consideran verificadas.
+
+### Riesgo de enumeración
+
+`RecoveryPolicy.REVEAL_ACCOUNT_EXISTENCE` está en `true` por defecto y diferencia cuenta inexistente, no verificada y verificada; revela si el correo está registrado. La app limita a 5 consultas de existencia por ventana de 10 minutos y no devuelve datos del usuario. Para ocultar el estado, cambia la constante a `false` y recompila: se omite `get_account_status`, se llama siempre a `/auth/v1/recover` y se muestra un mensaje genérico. Los límites del cliente se pueden eludir con instalaciones distintas o clientes modificados; conserva los límites de Supabase y SMTP.
+
+### Prueba manual
+
+1. Con SMTP configurado y una cuenta verificada, abre **¿Olvidó su contraseña?** desde el login.
+2. Solicita el código recibido por correo e ingrésalo con una contraseña nueva.
+3. Comprueba que la app vuelve al login, la clave nueva permite iniciar sesión y la anterior no.
+4. Prueba correo inexistente, cuenta no verificada, código erróneo/caducado, bloqueo al quinto intento y reenvío tras 60 segundos.
+5. Para probar el modo privado, cambia `REVEAL_ACCOUNT_EXISTENCE` a `false` temporalmente y valida el mensaje genérico.
+
+Rutas y configuración contrastadas con la documentación oficial de [verify OTP](https://supabase.com/docs/reference/javascript/auth-verifyotp), [plantillas de correo](https://supabase.com/docs/guides/auth/auth-email-templates), [límites de Auth](https://supabase.com/docs/guides/auth/rate-limits) y [SMTP personalizado](https://supabase.com/docs/guides/auth/auth-smtp). No se hicieron peticiones reales: no hay credenciales de proyecto en este entorno.
+
+## Canje de créditos
+
+El canje es una simulación académica: no existe alianza ni canje real con Frisby, Burger King, Little Caesars, Popsy, El Corral o McDonald's. Los valores del catálogo son costos demostrativos en créditos (1 crédito equivale a $2.000 COP en créditos), no precios comerciales. Los cupones solo sirven como comprobante visual dentro del proyecto y no tienen valor real.
+
+Aplica `supabase/12_canje.sql` después de los scripts de autenticación. Crea `merchants`, `merchant_products` y `redemptions`, activa RLS y expone `redeem_product` solo mediante RPC para usuarios autenticados. El saldo del servidor se obtiene sumando `credit_ledger.credits` del usuario. La función bloquea por usuario, valida el costo almacenado en la base de datos y hace idempotente la solicitud por `request_id`.
+
+Para editar el catálogo, modifica las filas del `INSERT` en `12_canje.sql` y vuelve a ejecutarlo. La clave natural `(merchant_id, name)` actualiza descripción, tipo, costo, orden y estado. Verifica productos y enlaces en los sitios oficiales antes de publicar; deja `website_url` en `NULL` mientras no se haya verificado. La app abre enlaces solo con esquema HTTPS, host válido y sin credenciales.
+
+Limitación conocida: los créditos aún pueden insertarse desde el cliente por las políticas actuales de `credit_ledger`; el canje valida el saldo calculado en el servidor, pero no convierte todo el sistema de créditos en un libro mayor protegido contra manipulación desde el cliente.
+
+### Pruebas SQL
+
+Con una sesión autenticada en SQL Editor, verifica el saldo y canjea un producto activo reemplazando los parámetros con valores de prueba:
+
+```sql
+select coalesce(sum(credits),0) as balance from public.credit_ledger where user_id=auth.uid();
+select public.redeem_product(1,'11111111-1111-4111-8111-111111111111'::uuid);
+select public.redeem_product(1,'11111111-1111-4111-8111-111111111111'::uuid); -- mismo cupón, un solo descuento
+select * from public.redemptions where user_id=auth.uid() order by created_at desc;
+```
+
+Comprueba el aislamiento con las cuentas A y B: inicia la consulta de `redemptions` con el token de B y confirma que no aparecen cupones creados por A. Las pruebas automatizadas del proyecto no usan red: ejecuta `mvnw.cmd test` en Windows o `./mvnw test` en Unix.
+
+### Errores comunes del canje
+
+- **RPC 404:** ejecuta `12_canje.sql` y espera a que PostgREST recargue el esquema.
+- **Permission denied:** verifica que el script otorgó `EXECUTE` sobre `redeem_product` a `authenticated`.
+- **CHECK de `entry_type`:** revisa que `credit_ledger` acepte `redencion`.
+- **Saldo negativo inesperado:** no edites el libro desde varios clientes; los canjes se serializan por usuario en la función.
+- **FXML no carga por `&`:** escribe `&amp;` en los atributos XML.
+- **Tarjetas antiguas tras cerrar sesión:** cierra sesión por el flujo de la app, que limpia la caché del catálogo.

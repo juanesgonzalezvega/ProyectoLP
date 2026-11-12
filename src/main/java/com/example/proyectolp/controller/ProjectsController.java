@@ -67,7 +67,7 @@ public class ProjectsController {
                 ButtonType.CANCEL, ButtonType.OK);
         confirm.setTitle("Confirmar eliminación"); confirm.setHeaderText("Eliminar proyecto");
         confirm.initOwner(tblProjects.getScene().getWindow());
-        if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
+        com.example.proyectolp.config.Theme.apply(confirm); if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) return;
         lblMessage.setText("Eliminando proyecto…");
         btnDelete.setDisable(true);
         runAsync(() -> { repository().eliminar(project.getId()); return null; }, ignored -> { cargarProyectos(); lblMessage.setText("Proyecto eliminado."); }, "No se pudo eliminar el proyecto.");
@@ -101,7 +101,7 @@ public class ProjectsController {
             dialog.setHeaderText(project == null ? "Define el proyecto y sus etapas" : "Actualiza el proyecto y sus etapas");
             dialog.initOwner(tblProjects.getScene().getWindow()); dialog.initModality(Modality.WINDOW_MODAL);
             dialog.setDialogPane(pane); dialog.setResultConverter(button -> button == ButtonType.OK ? form.buildProject() : null);
-            dialog.showAndWait().ifPresent(result -> guardarProyecto(result, project == null));
+            com.example.proyectolp.config.Theme.apply(dialog); dialog.showAndWait().ifPresent(result -> guardarProyecto(result, project == null));
         } catch (IOException e) { lblMessage.setText("No se pudo abrir el formulario: " + e.getMessage()); }
     }
 

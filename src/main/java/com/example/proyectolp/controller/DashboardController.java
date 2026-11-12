@@ -187,7 +187,7 @@ public class DashboardController {
                 activeProjects++;
                 List<Stage> stages = project.getStages();
                 ProjectProgressService.Progress p = progressService.calculate(stages);
-                Label name = new Label(project.getName()); name.setStyle("-fx-font-weight: bold;");
+                Label name = new Label(project.getName()); name.getStyleClass().add("h3");
                 if (!p.hasStages()) boxProyectos.getChildren().add(new VBox(3, name, new Label("Sin etapas")));
                 else {
                     ProgressBar bar = new ProgressBar(p.percent() / 100.0); bar.setMaxWidth(Double.MAX_VALUE);

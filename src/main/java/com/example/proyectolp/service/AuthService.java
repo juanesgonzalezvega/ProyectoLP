@@ -2,6 +2,7 @@ package com.example.proyectolp.service;
 
 import com.example.proyectolp.config.AppConfig;
 import com.example.proyectolp.model.Session;
+import com.example.proyectolp.model.enums.AccountStatus;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -37,6 +38,44 @@ public final class AuthService {
         if (session != null) accept(session, remember);
         return session;
     }
+    public AccountStatus accountStatus(String email) throws AuthException {
+        String normalized = normalizeEmail(email);
+        JsonNode result;
+        try {
+            result = request("POST", "/rest/v1/rpc/get_account_status", Map.of("p_email", normalized), null);
+        } catch (AuthException error) {
+            if (error.getMessage().equals(AuthException.offline().getMessage())) throw error;
+            if (error.statusCode() == 404 || "pgrst202".equalsIgnoreCase(error.errorCode()))
+                throw new AuthException("No se encontr\u00f3 el RPC get_account_status (HTTP 404). Ejecuta supabase/11_recuperacion.sql y espera la recarga del esquema de PostgREST.");
+            if (error.statusCode() == 401 || error.statusCode() == 403 || "42501".equals(error.errorCode()))
+                throw new AuthException("Supabase deneg\u00f3 la consulta del estado (HTTP " + error.statusCode() + "). Verifica el GRANT EXECUTE para anon y authenticated en supabase/11_recuperacion.sql.");
+            if (error.statusCode() > 0)
+                throw new AuthException("No se pudo consultar el estado de la cuenta (HTTP " + error.statusCode() + "). Revisa la configuraci\u00f3n de Supabase y el script de recuperaci\u00f3n.");
+            throw error;
+        }
+        String status = result.isTextual() ? result.asText() : result.path("get_account_status").asText("");
+        return switch (status) {
+            case "verified" -> AccountStatus.VERIFIED;
+            case "unverified" -> AccountStatus.UNVERIFIED;
+            case "not_found" -> AccountStatus.NOT_FOUND;
+            default -> throw new AuthException("No se pudo interpretar el estado de la cuenta.");
+        };
+    }
+    public void sendRecoveryCode(String email) throws AuthException {
+        request("POST", "/auth/v1/recover", Map.of("email", normalizeEmail(email)), null);
+    }
+    public Session verifyRecoveryCode(String email, String code) throws AuthException {
+        JsonNode result = request("POST", "/auth/v1/verify", Map.of("type", "recovery", "email", normalizeEmail(email), "token", code), null);
+        Session recovery = Session.fromAuthResponse(result, clock.instant());
+        if (recovery == null) throw new AuthException("No se pudo validar el c\u00f3digo de recuperaci\u00f3n.");
+        return recovery;
+    }
+    public void updatePassword(Session recovery, String newPassword) throws AuthException {
+        if (recovery == null) throw new AuthException("La sesi\u00f3n de recuperaci\u00f3n no es v\u00e1lida.");
+        request("PUT", "/auth/v1/user", Map.of("password", newPassword), recovery.accessToken());
+    }
+    private static String normalizeEmail(String email) { return email == null ? "" : email.trim().toLowerCase(java.util.Locale.ROOT); }
+
     public Session refresh(String refreshToken, boolean remember) throws AuthException {
         long sessionGeneration=sessions.generation();
         JsonNode result = request("POST", "/auth/v1/token?grant_type=refresh_token", Map.of("refresh_token",refreshToken), null);

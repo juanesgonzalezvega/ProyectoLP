@@ -1,0 +1,50 @@
+.root {
+ -fx-base:#141416; -fx-background:#141416; -fx-control-inner-background:#1c1c1f; -fx-control-inner-background-alt:#202024;
+ -fx-accent:#d62839; -fx-focus-color:#d62839; -fx-faint-focus-color:rgba(214,40,57,.22);
+ -fx-text-base-color:#ffffff; -fx-text-background-color:#ffffff; -fx-text-inner-color:#ffffff;
+ -fx-selection-bar:#7a0f1a; -fx-selection-bar-non-focused:#552027; -fx-mark-color:#ffffff;
+ -fx-font-family:"Montserrat", "Segoe UI", Arial; -fx-font-size:14px;
+}
+.app-bg { -fx-background-color: linear-gradient(to right,#141416 0%,#171416 65%,#2a1619 100%); }
+.card { -fx-background-color:#1c1c1f; -fx-border-color:rgba(255,255,255,.10); -fx-border-width:1; -fx-background-radius:12; -fx-border-radius:12; -fx-padding:16; }
+.card-title,.h3 { -fx-font-size:18px; -fx-font-weight:600; -fx-text-fill:#fff; }
+.kicker { -fx-font-size:12px; -fx-text-fill:#cfcfd4; }
+.h1 { -fx-font-size:48px; -fx-font-weight:bold; -fx-text-fill:#fff; }
+.h2 { -fx-font-size:28px; -fx-font-weight:bold; -fx-text-fill:#fff; }
+.body { -fx-font-size:14px; -fx-text-fill:#cfcfd4; }
+.caption,.text-muted { -fx-font-size:12px; -fx-text-fill:#b5b5bd; }
+.text-error { -fx-text-fill:#ff6b6b; } .text-success { -fx-text-fill:#3ecf8e; } .text-warning { -fx-text-fill:#f5a524; }
+.metric { -fx-font-size:30px; -fx-font-weight:bold; -fx-text-fill:#fff; }
+.button { -fx-background-color:#232327; -fx-text-fill:#fff; -fx-background-radius:999; -fx-border-color:rgba(255,255,255,.16); -fx-border-radius:999; -fx-padding:9 16; }
+.button:hover { -fx-border-color:#d62839; -fx-background-color:#302326; } .button:focused { -fx-border-color:#e63946; }
+.btn-primary { -fx-background-color:#d62839; -fx-border-color:transparent; -fx-font-weight:bold; } .btn-primary:hover { -fx-background-color:#e63946; }
+.btn-primary:pressed { -fx-background-color:#7a0f1a; } .btn-ghost { -fx-background-color:transparent; -fx-border-color:rgba(255,255,255,.35); }
+.btn-danger { -fx-background-color:transparent; -fx-border-color:#ff6b6b; -fx-text-fill:#ff8b8b; }
+.btn-circle { -fx-pref-width:56px; -fx-pref-height:56px; -fx-background-radius:999; -fx-border-radius:999; -fx-padding:0; }
+.text-field,.password-field,.text-area,.combo-box,.date-picker,.spinner { -fx-background-color:#1c1c1f; -fx-text-fill:#fff; -fx-prompt-text-fill:#8e8e96; -fx-border-color:rgba(255,255,255,.14); -fx-border-radius:8; -fx-background-radius:8; }
+.text-area .content { -fx-background-color:#1c1c1f; } .field { -fx-background-color:#1c1c1f; }
+.field-error { -fx-border-color:#ff6b6b; } .check-box,.radio-button,.toggle-button { -fx-text-fill:#cfcfd4; -fx-accent:#d62839; }
+.table-view,.list-view,.tree-view { -fx-background-color:#1c1c1f; -fx-control-inner-background:#1c1c1f; -fx-border-color:rgba(255,255,255,.10); }
+.table-view .column-header-background { -fx-background-color:#232327; } .table-view .column-header,.table-view .filler { -fx-background-color:#232327; -fx-border-color:transparent transparent rgba(255,255,255,.12) transparent; }
+.table-view .column-header .label { -fx-text-fill:#b5b5bd; -fx-font-size:12px; -fx-font-weight:bold; }
+.table-row-cell { -fx-background-color:#1c1c1f; -fx-text-background-color:#fff; } .table-row-cell:odd { -fx-background-color:#202024; }
+.table-row-cell:hover { -fx-background-color:rgba(214,40,57,.14); } .table-row-cell:selected { -fx-background-color:rgba(214,40,57,.55); }
+.list-cell { -fx-background-color:#1c1c1f; -fx-text-fill:#fff; } .list-cell:odd { -fx-background-color:#202024; } .list-cell:selected { -fx-background-color:rgba(214,40,57,.55); }
+.tab-pane > .tab-header-area > .tab-header-background { -fx-background-color:#141416; } .tab { -fx-background-color:transparent; } .tab .tab-label { -fx-text-fill:#a7a7af; }
+.tab:selected { -fx-border-color:transparent transparent #d62839 transparent; } .tab:selected .tab-label { -fx-text-fill:#fff; }
+.progress-bar { -fx-pref-height:4px; } .progress-bar > .track { -fx-background-color:#303035; } .progress-bar > .bar { -fx-background-color:#d62839; -fx-background-radius:4; }
+.scroll-pane,.scroll-pane > .viewport { -fx-background-color:transparent; } .separator .line { -fx-border-color:rgba(255,255,255,.10); }
+.scroll-bar:vertical,.scroll-bar:horizontal { -fx-background-color:transparent; -fx-pref-width:9; -fx-pref-height:9; } .scroll-bar .thumb { -fx-background-color:#55545a; -fx-background-radius:8; }
+.tooltip,.context-menu,.combo-box-popup .list-view,.date-picker-popup { -fx-background-color:#232327; -fx-text-fill:#fff; -fx-border-color:rgba(255,255,255,.12); }
+.hyperlink { -fx-text-fill:#cfcfd4; } .hyperlink:hover { -fx-text-fill:#e63946; }
+.dialog-pane { -fx-background-color:#1c1c1f; -fx-border-color:rgba(255,255,255,.12); } .dialog-pane > .header-panel { -fx-background-color:#232327; } .dialog-pane .content { -fx-text-fill:#fff; }
+.chart,.chart-plot-background { -fx-background-color:transparent; } .chart-legend { -fx-background-color:transparent; } .chart-legend-item { -fx-text-fill:#cfcfd4; }
+.axis { -fx-tick-label-fill:#cfcfd4; } .chart-vertical-grid-lines,.chart-horizontal-grid-lines { -fx-stroke:rgba(255,255,255,.07); }
+.default-color0.chart-pie,.default-color0.chart-bar { -fx-bar-fill:#d62839; -fx-pie-color:#d62839; } .default-color1.chart-pie,.default-color1.chart-bar { -fx-bar-fill:#7a0f1a; -fx-pie-color:#7a0f1a; }
+.default-color2.chart-pie,.default-color2.chart-bar { -fx-bar-fill:#e63946; -fx-pie-color:#e63946; } .default-color3.chart-pie,.default-color3.chart-bar { -fx-bar-fill:#8e8e96; -fx-pie-color:#8e8e96; }
+.default-color4.chart-pie,.default-color4.chart-bar { -fx-bar-fill:#552027; -fx-pie-color:#552027; } .default-color5.chart-pie,.default-color5.chart-bar { -fx-bar-fill:#cfcfd4; -fx-pie-color:#cfcfd4; }
+.nav-item { -fx-text-fill:#b5b5bd; -fx-background-color:transparent; } .nav-item-active { -fx-text-fill:#fff; -fx-border-color:transparent transparent #d62839 transparent; }
+.divider { -fx-background-color:rgba(255,255,255,.10); } .badge { -fx-background-color:#232327; -fx-border-color:rgba(255,255,255,.12); -fx-border-radius:999; -fx-background-radius:999; -fx-padding:6 12; }
+.hero-circle { -fx-fill:linear-gradient(to bottom,#e63946,#7a0f1a); } .hero-semicircle { -fx-fill:#d62839; } .logo-mark { -fx-fill:#d62839; }
+
+.toast-success { -fx-background-color:#173b2a; -fx-text-fill:#ffffff; -fx-padding:12 18; -fx-background-radius:8; }

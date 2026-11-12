@@ -11,15 +11,15 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<BorderPane fx:id="habitsRoot" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.HabitsController">
+<BorderPane stylesheets="@../css/theme.css" fx:id="habitsRoot" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.HabitsController" styleClass="app-bg">
     <top><VBox spacing="12"><padding><Insets top="18" right="22" bottom="14" left="22"/></padding>
-        <HBox alignment="CENTER_LEFT" spacing="14"><Button text="← Dashboard" onAction="#volverDashboard"/><Label text="Hábitos" style="-fx-font-size: 24px; -fx-font-weight: bold;"/><HBox HBox.hgrow="ALWAYS"/><Button fx:id="btnNewHabit" text="Nuevo hábito" onAction="#nuevoHabito"/><fx:include source="session-menu.fxml"/></HBox>
-        <HBox alignment="CENTER_LEFT" spacing="10"><Label text="Día a marcar:"/><DatePicker fx:id="dateSelected"/><CheckBox fx:id="chkShowInactive" text="Mostrar inactivos"/><Button fx:id="btnEdit" text="Editar" onAction="#editarHabito"/><Button fx:id="btnToggleActive" text="Desactivar" onAction="#activarDesactivar"/><Label fx:id="lblMessage" wrapText="true" style="-fx-text-fill: #555;"/></HBox>
+        <HBox alignment="CENTER_LEFT" spacing="14"><Button text="← Dashboard" onAction="#volverDashboard"/><Label text="Hábitos" styleClass="h2"/><HBox HBox.hgrow="ALWAYS"/><Button fx:id="btnNewHabit" text="Nuevo hábito" onAction="#nuevoHabito"/><fx:include source="session-menu.fxml"/></HBox>
+        <HBox alignment="CENTER_LEFT" spacing="10"><Label text="Día a marcar:"/><DatePicker fx:id="dateSelected"/><CheckBox fx:id="chkShowInactive" text="Mostrar inactivos"/><Button fx:id="btnEdit" text="Editar" onAction="#editarHabito"/><Button fx:id="btnToggleActive" text="Desactivar" onAction="#activarDesactivar"/><Label fx:id="lblMessage" wrapText="true" styleClass="text-muted"/></HBox>
     </VBox></top>
-    <center><GridPane hgap="14" vgap="12" style="-fx-padding: 0 22 20 22;">
+    <center><GridPane hgap="14" vgap="12">
         <columnConstraints><ColumnConstraints percentWidth="67"/><ColumnConstraints percentWidth="33"/></columnConstraints>
         <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Label text="Rachas y cumplimiento" style="-fx-font-size: 17px; -fx-font-weight: bold;"/>
+            <Label text="Rachas y cumplimiento" styleClass="h2"/>
             <TableView fx:id="tblHabits" editable="true" VBox.vgrow="ALWAYS">
                 <columns>
                     <TableColumn fx:id="colHabitName" text="Hábito" prefWidth="180"/>
@@ -33,7 +33,7 @@
             </TableView>
         </VBox>
         <VBox spacing="8" GridPane.columnIndex="1" GridPane.rowIndex="0">
-            <Label fx:id="lblHistoryTitle" text="Historial de los últimos 30 días" style="-fx-font-size: 17px; -fx-font-weight: bold;"/>
+            <Label fx:id="lblHistoryTitle" text="Historial de los últimos 30 días" styleClass="h2"/>
             <TableView fx:id="tblHistory" VBox.vgrow="ALWAYS">
                 <columns>
                     <TableColumn fx:id="colHistoryDate" text="Fecha" prefWidth="130"/>
