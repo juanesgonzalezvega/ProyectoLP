@@ -165,6 +165,25 @@ Los archivos descargados se guardan en un directorio temporal privado de la sesi
 
 
 
+## Menús contextuales
+
+El clic derecho selecciona primero la fila, etapa, tarjeta o canje y presenta las acciones existentes; **Shift+F10** y la tecla de menú abren las acciones del elemento seleccionado. En las zonas vacías solo aparece la acción para crear un elemento.
+
+| Sección y elemento | Acciones |
+|---|---|
+| Tareas | Completar, Adjuntos…, Editar, Eliminar. Zona vacía: Nueva tarea. |
+| Proyectos | Adjuntos…, Editar, Eliminar. Zona vacía: Nuevo proyecto. Etapas: Marcar como → Pendiente, En progreso o Completada. |
+| Hábitos | Marcar cumplido hoy / Desmarcar hoy, Editar, Activar / Desactivar. Zona vacía: Nuevo hábito. El historial no tiene menú. |
+| Finanzas: movimientos | Editar, Eliminar. Zona vacía: Nuevo movimiento. |
+| Finanzas: metas | Registrar aporte, Editar, Eliminar. Zona vacía: Nueva meta. |
+| Entrenamiento: rutinas | Editar, Eliminar. Zona vacía: Nueva rutina. Historial: Adjuntos… |
+| Recompensas | Restaurantes: Ver productos y, si hay URL válida, Visitar sitio web. Mis canjes: Copiar código. |
+| Adjuntos | Guardar copia…, Eliminar. |
+
+Para agregar un menú, define sus `ContextMenu`, `MenuItem` y separadores en el FXML del control (o en `fx:define` para las filas y tarjetas), enlaza cada `onAction` a un manejador existente y registra la tabla o lista con `ContextMenuSupport.installTableRows` o `installListRows`. Para tarjetas usa `registerNode`; enlaza el estado de cada opción con `bindDisable` y los textos dinámicos con `bindText`. Los menús vacíos se declaran aparte y solo contienen la opción de crear.
+
+Mantén el orden de las acciones: principal, Adjuntos si aplica, Editar, separador y acción destructiva al final. Usa «Eliminar» en coral con la clase `menu-item-danger`; los estilos del menú van en `theme.css`, nunca como estilos en línea. Las acciones de menú llaman al mismo manejador que los botones.
+
 ## Tema visual
 
 La interfaz usa fondo `#141416`, superficies `#1c1c1f`, tinte cálido `#2a1619`, texto blanco y carmesí `#d62839` (variantes `#e63946` y `#7a0f1a`). Errores: coral `#ff6b6b`; éxito `#3ecf8e`; advertencia `#f5a524`.
@@ -237,3 +256,30 @@ Comprueba el aislamiento con las cuentas A y B: inicia la consulta de `redemptio
 - **Saldo negativo inesperado:** no edites el libro desde varios clientes; los canjes se serializan por usuario en la función.
 - **FXML no carga por `&`:** escribe `&amp;` en los atributos XML.
 - **Tarjetas antiguas tras cerrar sesión:** cierra sesión por el flujo de la app, que limpia la caché del catálogo.
+## Historial de actividad
+
+El historial muestra acciones que modifican datos: tareas, proyectos y etapas, hábitos y sus registros diarios, movimientos y metas financieras, rutinas y sesiones de entrenamiento, series, créditos, canjes, insignias, misiones y adjuntos. No registra consultas, navegación, XP, cambios de racha en `user_stats`, datos de catálogo ni configuración interna de ejercicios. Tampoco es retroactivo: se registran acciones desde la instalación de `supabase/13_historial_actividad.sql`.
+
+Los triggers de la base de datos generan las entradas a partir de las filas modificadas, incluidas las escrituras que no provengan de la interfaz. Por ello, las modificaciones realizadas desde el SQL Editor también se registran usando el `user_id` de la fila. Los eventos sin una modificación persistida —inicio y cierre de sesión, cambio de contraseña y finalización de entrenamiento— se envían mediante `log_client_event`, cuya lista blanca y cuyos resúmenes están definidos en SQL.
+
+`activity_log` es inmutable para los clientes: RLS permite únicamente leer las filas propias; `anon` no tiene acceso y `authenticated` no puede insertar, editar ni borrar. Los triggers y la función `SECURITY DEFINER` son los únicos escritores. El Dashboard consulta las cinco entradas recientes y la pantalla **Historial** permite filtrar por categoría, fechas y texto, consultar detalles y cargar páginas de 50 registros.
+
+Para registrar una tabla nueva, añade su evento a `public.activity_capture_change()` usando los datos de `OLD`/`NEW`, el `user_id` de la fila y los campos modificados; después incluye el nombre en el arreglo condicional `v_tables`, protegido por `to_regclass`. No añadas escrituras de `activity_log` desde la aplicación ni registres tablas derivadas o de catálogo. Ajusta la prueba estructural de SQL y prueba la acción en la base de datos después de instalar el script.
+
+Verificación manual con el usuario autenticado:
+
+```sql
+select category, count(*)
+from public.activity_log
+where user_id = auth.uid()
+group by category
+order by category;
+
+select occurred_at, category, summary
+from public.activity_log
+where user_id = auth.uid()
+order by occurred_at desc, id desc
+limit 20;
+```
+
+Pasos de prueba manual: aplica los scripts de esquema y después `13_historial_actividad.sql`; crea y modifica datos en las distintas secciones; comprueba el historial y los filtros; intenta modificar `activity_log` con el token de la aplicación (la operación debe ser rechazada); finalmente verifica con dos cuentas que cada usuario solo ve sus propias filas. El script no elimina ni reconstruye entradas anteriores.

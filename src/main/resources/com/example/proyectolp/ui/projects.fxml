@@ -2,9 +2,13 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -18,11 +22,18 @@
         <Label text="Proyectos" styleClass="h2"/>
         <HBox HBox.hgrow="ALWAYS"/>
         <fx:include source="session-menu.fxml"/>
-        <Button text="Nuevo proyecto" onAction="#nuevoProyecto"/>
+        <Button fx:id="btnNewProject" text="Nuevo proyecto" onAction="#nuevoProyecto"/>
     </HBox></top>
     <center><GridPane hgap="14" vgap="10">
         <columnConstraints><ColumnConstraints percentWidth="48"/><ColumnConstraints percentWidth="52"/></columnConstraints>
         <TableView fx:id="tblProjects" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.rowSpan="2">
+            <contextMenu><ContextMenu fx:id="projectRowMenu"><items>
+                    <MenuItem fx:id="miProjectAttachments" text="Adjuntos…" onAction="#openAttachments"/>
+                    <MenuItem fx:id="miEditProject" text="Editar" onAction="#editarProyecto"/>
+                    <SeparatorMenuItem/>
+                    <MenuItem fx:id="miDeleteProject" text="Eliminar" onAction="#eliminarProyecto" styleClass="menu-item-danger"/>
+                </items></ContextMenu></contextMenu>
+            <fx:define><ContextMenu fx:id="projectEmptyMenu"><items><MenuItem fx:id="miNewProject" text="Nuevo proyecto" onAction="#nuevoProyecto"/></items></ContextMenu></fx:define>
             <columns>
                 <TableColumn fx:id="colProjectName" text="Proyecto" prefWidth="180"/>
                 <TableColumn fx:id="colProjectDeadline" text="Fecha límite" prefWidth="110"/>
@@ -39,7 +50,15 @@
         </VBox>
         <VBox spacing="8" styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="1">
             <Label text="Etapas" styleClass="h2"/>
-            <ListView fx:id="listProjectStages" prefHeight="220" VBox.vgrow="ALWAYS"/>
+            <ListView fx:id="listProjectStages" prefHeight="220" VBox.vgrow="ALWAYS">
+                <contextMenu><ContextMenu fx:id="stageRowMenu"><items>
+                        <Menu fx:id="stageStatusMenu" text="Marcar como"><items>
+                            <MenuItem fx:id="miStagePending" text="Pendiente" onAction="#marcarEtapaPendiente"/>
+                            <MenuItem fx:id="miStageInProgress" text="En progreso" onAction="#marcarEtapaEnProgreso"/>
+                            <MenuItem fx:id="miStageCompleted" text="Completada" onAction="#marcarEtapaCompletada"/>
+                        </items></Menu>
+                    </items></ContextMenu></contextMenu>
+            </ListView>
             <HBox alignment="CENTER_LEFT" spacing="8"><Label text="Estado:"/><ComboBox fx:id="cmbStageStatus" prefWidth="170"/><Button fx:id="btnUpdateStage" text="Guardar estado" onAction="#guardarEstadoEtapa"/></HBox>
         </VBox>
     </GridPane></center>

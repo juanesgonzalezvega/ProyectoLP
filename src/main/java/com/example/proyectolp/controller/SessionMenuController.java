@@ -9,4 +9,5 @@ public class SessionMenuController {
     @FXML private Label userLabel;
     @FXML private void initialize(){var session=SessionManager.getInstance().current();userLabel.setText(session==null?"":(session.displayName()==null||session.displayName().isBlank()?session.email():session.displayName()));}
     @FXML private void logout(){MainApp.logout();}
+    @FXML private void openActivityHistory(){MainApp.openActivityHistory();}
 }

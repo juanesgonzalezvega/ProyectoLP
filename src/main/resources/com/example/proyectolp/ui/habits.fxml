@@ -2,8 +2,10 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -21,6 +23,12 @@
         <VBox spacing="8" GridPane.columnIndex="0" GridPane.rowIndex="0">
             <Label text="Rachas y cumplimiento" styleClass="h2"/>
             <TableView fx:id="tblHabits" editable="true" VBox.vgrow="ALWAYS">
+                <contextMenu><ContextMenu fx:id="habitRowMenu"><items>
+                        <MenuItem fx:id="miToggleDone" text="Marcar cumplido hoy" onAction="#alternarCumplimientoHoy"/>
+                        <MenuItem fx:id="miEditHabit" text="Editar" onAction="#editarHabito"/>
+                        <MenuItem fx:id="miToggleHabitActive" text="Desactivar" onAction="#activarDesactivar"/>
+                    </items></ContextMenu></contextMenu>
+                <fx:define><ContextMenu fx:id="habitEmptyMenu"><items><MenuItem fx:id="miNewHabit" text="Nuevo hábito" onAction="#nuevoHabito"/></items></ContextMenu></fx:define>
                 <columns>
                     <TableColumn fx:id="colHabitName" text="Hábito" prefWidth="180"/>
                     <TableColumn fx:id="colCurrentStreak" text="Racha actual" prefWidth="95"/>

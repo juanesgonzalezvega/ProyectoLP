@@ -74,6 +74,17 @@ public final class AuthService {
         if (recovery == null) throw new AuthException("La sesi\u00f3n de recuperaci\u00f3n no es v\u00e1lida.");
         request("PUT", "/auth/v1/user", Map.of("password", newPassword), recovery.accessToken());
     }
+    public void logPasswordUpdated(Session recovery) {
+        if (recovery == null) return;
+        try {
+            new SupabaseService(config, transport, sessions, this).postWithAccessToken(
+                    "rpc/log_client_event",
+                    Map.of("p_action", "contrasena_actualizada", "p_metadata", Map.of()),
+                    recovery.accessToken());
+        } catch (Exception ignored) {
+            // El historial no debe interrumpir una recuperación de contraseña válida.
+        }
+    }
     private static String normalizeEmail(String email) { return email == null ? "" : email.trim().toLowerCase(java.util.Locale.ROOT); }
 
     public Session refresh(String refreshToken, boolean remember) throws AuthException {

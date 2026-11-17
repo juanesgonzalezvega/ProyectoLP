@@ -48,3 +48,14 @@
 .hero-circle { -fx-fill:linear-gradient(to bottom,#e63946,#7a0f1a); } .hero-semicircle { -fx-fill:#d62839; } .logo-mark { -fx-fill:#d62839; }
 
 .toast-success { -fx-background-color:#173b2a; -fx-text-fill:#ffffff; -fx-padding:12 18; -fx-background-radius:8; }
+
+.context-menu { -fx-background-color:#232327; -fx-background-radius:8; -fx-border-color:rgba(255,255,255,.14); -fx-border-radius:8; -fx-padding:4; }
+.context-menu .menu-item { -fx-background-color:transparent; -fx-background-radius:5; -fx-padding:6 12; }
+.context-menu .menu-item .label { -fx-text-fill:#ffffff; -fx-font-size:13px; }
+.context-menu .menu-item:focused,.context-menu .menu-item:hover { -fx-background-color:rgba(214,40,57,.32); }
+.context-menu .menu-item:disabled .label { -fx-text-fill:rgba(255,255,255,.42); }
+.context-menu .separator-menu-item .line { -fx-border-color:rgba(255,255,255,.14); -fx-border-insets:3 0 3 0; }
+.context-menu .menu-item-danger { -fx-background-color:transparent; -fx-background-radius:5; -fx-padding:6 12; }
+.context-menu .menu-item-danger .label { -fx-text-fill:#ff8b8b; }
+.context-menu .menu-item-danger:focused,.context-menu .menu-item-danger:hover { -fx-background-color:rgba(214,40,57,.32); }
+.context-menu .menu-item-danger:focused .label,.context-menu .menu-item-danger:hover .label { -fx-text-fill:#ffb1b1; }

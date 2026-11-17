@@ -62,5 +62,9 @@
             <HBox alignment="CENTER_LEFT"><Label text="Inspirational quotes provided by "/><Hyperlink text="ZenQuotes API" onAction="#abrirZenQuotes"/></HBox>
             <HBox alignment="CENTER_LEFT"><Label text="Traducción automática: "/><Hyperlink text="MyMemory" onAction="#abrirMyMemory"/></HBox>
         </VBox>
+        <VBox spacing="9" styleClass="card" GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2">
+            <HBox alignment="CENTER_LEFT" spacing="12"><Label text="Actividad reciente" styleClass="h2"/><HBox HBox.hgrow="ALWAYS"/><Button text="Ver historial" onAction="#abrirHistorial" styleClass="btn-ghost"/></HBox>
+            <VBox fx:id="boxRecentActivity" spacing="8"/>
+        </VBox>
     </GridPane></content></ScrollPane></center>
 </BorderPane>

@@ -20,6 +20,7 @@ import java.io.IOException;
 public class DashboardController {
     @FXML private Label lblPendientes, lblEnProgreso, lblCompletadas, lblVencidas, lblTareasError;
     @FXML private VBox boxProyectos, boxHabitos;
+    @FXML private VBox boxRecentActivity;
     @FXML private Label lblProyectosError, lblHabitosError, lblRacha, lblRachaError;
     @FXML private Label lblFinancialBalance, lblFinancialError;
     @FXML private Label lblCreditsBalance, lblCreditsCop, lblRewardStreak, lblRewardLevel, lblXpText, lblNotification;
@@ -88,6 +89,7 @@ public class DashboardController {
         } catch (IOException e) { lblTrainingError.setText("No se pudo abrir Entrenamiento."); }
     }
     @FXML private void abrirRecompensas() { try { FXMLLoader l=new FXMLLoader(getClass().getResource("/com/example/proyectolp/ui/rewards.fxml")); Parent view=l.load(); l.<RewardsController>getController().setDashboard(dashboardRoot,this); dashboardRoot.getScene().setRoot(view); } catch(IOException e) { lblTrainingError.setText("No se pudo abrir Recompensas."); } }
+    @FXML private void abrirHistorial() { com.example.proyectolp.MainApp.openActivityHistory(); }
 
     /** Recarga todos los datos visibles desde Supabase. */
     public void refrescar() {
@@ -98,6 +100,7 @@ public class DashboardController {
         try {
             AppConfig config = AppConfig.load();
             SupabaseService supabase = new SupabaseService(config);
+            long requestGeneration = SessionManager.getInstance().generation();
             Task<DashboardData> load = new Task<>() {
                 @Override protected DashboardData call() {
                     DashboardData data = new DashboardData();
@@ -116,13 +119,15 @@ public class DashboardController {
                     } catch (Exception e) { data.financeError = readable(e); }
                     try { data.trainingSessions = new WorkoutSessionRepository(supabase).list(); data.trainingSets = new WorkoutSetRepository(supabase).list(); }
                     catch (Exception e) { data.trainingError = readable(e); }
+                    try { data.recentActivity = new ActivityRepository(supabase).latest(5); }
+                    catch (Exception e) { data.activityError = readable(e); }
                     try { data.creditBalance=new CreditLedgerRepository(supabase).balance(); data.xpTotal=new XpLogRepository(supabase).total(); data.userStats=new UserStatsRepository(supabase).get(); }
                     catch(Exception e){data.rewardError=readable(e);}
                     return data;
                 }
             };
-            load.setOnSucceeded(event -> { render(load.getValue()); btnActualizar.setDisable(false); });
-            load.setOnFailed(event -> { String error = readable(load.getException()); showAllErrors(error); btnActualizar.setDisable(false); });
+            load.setOnSucceeded(event -> { if (!SessionManager.getInstance().isCurrent(requestGeneration)) return; render(load.getValue()); btnActualizar.setDisable(false); });
+            load.setOnFailed(event -> { if (!SessionManager.getInstance().isCurrent(requestGeneration)) return; String error = readable(load.getException()); showAllErrors(error); btnActualizar.setDisable(false); });
             executor.submit(load);
         } catch (Exception e) {
             showAllErrors(readable(e)); btnActualizar.setDisable(false);
@@ -231,6 +236,22 @@ public class DashboardController {
             lblTrainingSummary.setText(summary.sessions() + " sesiones · " + summary.volume().toPlainString() + " kg·reps esta semana");
             lblTrainingError.setText("");
         } else { lblTrainingSummary.setText("Sin datos"); lblTrainingError.setText(data.trainingError); }
+        boxRecentActivity.getChildren().clear();
+        if (data.activityError == null) {
+            ActivityFormatter activityFormatter = new ActivityFormatter(java.time.Clock.systemUTC());
+            if (data.recentActivity.isEmpty()) boxRecentActivity.getChildren().add(new Label("Aún no hay actividad registrada."));
+            for (ActivityEntry entry : data.recentActivity) {
+                Label item = new Label(activityFormatter.relativeTime(entry.getOccurredAt()) + " · " + entry.getSummary());
+                item.setWrapText(true);
+                item.getStyleClass().add("body");
+                boxRecentActivity.getChildren().add(item);
+            }
+        } else {
+            Label error = new Label(data.activityError);
+            error.setWrapText(true);
+            error.getStyleClass().add("text-error");
+            boxRecentActivity.getChildren().add(error);
+        }
     }
 
     private static String readable(Throwable e) {
@@ -252,6 +273,7 @@ public class DashboardController {
         String taskError, projectError, habitError;
         int creditBalance,xpTotal; UserStats userStats=new UserStats(); String rewardError;
         List<TrainingModels.Session> trainingSessions = List.of(); List<TrainingModels.SetEntry> trainingSets = List.of(); String trainingError;
+        List<ActivityEntry> recentActivity = List.of(); String activityError;
     }
     private static String cop(int value){return java.text.NumberFormat.getCurrencyInstance(java.util.Locale.forLanguageTag("es-CO")).format(value);}
 }

@@ -6,13 +6,16 @@
 <?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
@@ -20,11 +23,14 @@
 <BorderPane stylesheets="@../css/theme.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.TrainingController" styleClass="app-bg">
  <top><HBox spacing="12" alignment="CENTER_LEFT"><Button text="Volver al Dashboard" onAction="#volverDashboard"/><Label text="Entrenamiento" styleClass="h2"/><Label fx:id="messageLabel" wrapText="true"/><HBox HBox.hgrow="ALWAYS"/><fx:include source="session-menu.fxml"/></HBox></top>
  <center><TabPane>
-  <Tab text="Rutinas" closable="false"><VBox spacing="8"><HBox spacing="8"><Button text="Nueva" onAction="#newRoutine"/><Button text="Editar" onAction="#editRoutine"/><Button text="Eliminar" onAction="#deleteRoutine"/></HBox><ListView fx:id="routineList" VBox.vgrow="ALWAYS"/></VBox></Tab>
+  <Tab text="Rutinas" closable="false"><VBox spacing="8"><HBox spacing="8"><Button fx:id="btnNewRoutine" text="Nueva" onAction="#newRoutine"/><Button text="Editar" onAction="#editRoutine"/><Button text="Eliminar" onAction="#deleteRoutine"/></HBox><ListView fx:id="routineList" VBox.vgrow="ALWAYS">
+      <contextMenu><ContextMenu fx:id="routineRowMenu"><items><MenuItem fx:id="miEditRoutine" text="Editar" onAction="#editRoutine"/><SeparatorMenuItem/><MenuItem fx:id="miDeleteRoutine" text="Eliminar" onAction="#deleteRoutine" styleClass="menu-item-danger"/></items></ContextMenu></contextMenu>
+      <fx:define><ContextMenu fx:id="routineEmptyMenu"><items><MenuItem fx:id="miNewRoutine" text="Nueva rutina" onAction="#newRoutine"/></items></ContextMenu></fx:define>
+  </ListView></VBox></Tab>
   <Tab text="Sesión" closable="false"><VBox spacing="9"><HBox spacing="8"><ComboBox fx:id="sessionRoutine" promptText="Rutina (opcional)"/><DatePicker fx:id="sessionDate"/><Button text="Iniciar sesión" onAction="#startSession"/><Button text="Finalizar sesión" onAction="#finishSession"/></HBox>
    <HBox spacing="8"><ComboBox fx:id="sessionExercise" promptText="Ejercicio"/><TextField fx:id="weightField" promptText="Peso kg"/><TextField fx:id="repsField" promptText="Repeticiones"/><TextField fx:id="commentField" promptText="Comentario"/><Button text="Registrar serie" onAction="#addSet"/></HBox><TableView fx:id="setTable" VBox.vgrow="ALWAYS"><columns><TableColumn fx:id="setExerciseCol" text="Ejercicio"/><TableColumn fx:id="setMuscleCol" text="Grupo"/><TableColumn fx:id="setNumberCol" text="Serie"/><TableColumn fx:id="setWeightCol" text="Peso"/><TableColumn fx:id="setRepsCol" text="Reps"/></columns></TableView>
    <HBox spacing="8" alignment="CENTER_LEFT"><Label text="Descanso"/><TextField fx:id="timerConfig" text="90" prefWidth="70"/><Label fx:id="timerLabel" text="01:30" styleClass="h2"/><Button text="Iniciar" onAction="#startTimer"/><Button text="Pausar" onAction="#pauseTimer"/><Button text="Reiniciar" onAction="#resetTimer"/><Button fx:id="btnSessionAttachments" text="Adjuntar a esta sesión" onAction="#openCurrentSessionAttachments" disable="true"/></HBox><Label fx:id="sessionVolumeLabel" text="Volumen sesión: 0"/></VBox></Tab>
   <Tab text="Progresión" closable="false"><VBox spacing="8"><HBox spacing="8"><ComboBox fx:id="progressExercise" promptText="Ejercicio"/><Button text="Actualizar" onAction="#refreshProgress"/></HBox><LineChart fx:id="progressChart" VBox.vgrow="ALWAYS"><xAxis><CategoryAxis label="Sesión"/></xAxis><yAxis><NumberAxis label="Volumen"/></yAxis></LineChart><Label fx:id="comparisonLabel" wrapText="true"/></VBox></Tab>
   <Tab text="Estadísticas" closable="false"><VBox spacing="8"><HBox spacing="10"><Label fx:id="weeklyLabel"/><Label fx:id="monthlyLabel"/><Label fx:id="frequencyLabel"/><ComboBox fx:id="distributionPeriod" promptText="Período muscular"/></HBox><PieChart fx:id="muscleChart" title="Distribución muscular" VBox.vgrow="ALWAYS"/><Label fx:id="statsLabel" wrapText="true"/></VBox></Tab>
- <Tab text="Historial" closable="false"><VBox spacing="8"><ListView fx:id="sessionHistoryList" VBox.vgrow="ALWAYS"/><Button fx:id="btnHistoryAttachments" text="Adjuntos" onAction="#openHistoryAttachments" disable="true"/></VBox></Tab></TabPane></center>
+ <Tab text="Historial" closable="false"><VBox spacing="8"><ListView fx:id="sessionHistoryList" VBox.vgrow="ALWAYS"><contextMenu><ContextMenu fx:id="historyRowMenu"><items><MenuItem fx:id="miHistoryAttachments" text="Adjuntos…" onAction="#openHistoryAttachments"/></items></ContextMenu></contextMenu></ListView><Button fx:id="btnHistoryAttachments" text="Adjuntos" onAction="#openHistoryAttachments" disable="true"/></VBox></Tab></TabPane></center>
 </BorderPane>

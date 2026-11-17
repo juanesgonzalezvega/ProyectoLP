@@ -4,5 +4,6 @@
 <?import javafx.scene.layout.HBox?>
 <HBox stylesheets="@../css/theme.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.SessionMenuController" alignment="CENTER_RIGHT" spacing="8" styleClass="app-bg">
  <Label fx:id="userLabel"/>
+ <Button text="Historial" onAction="#openActivityHistory"/>
  <Button text="Cerrar sesión" onAction="#logout"/>
 </HBox>

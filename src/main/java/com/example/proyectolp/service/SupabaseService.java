@@ -20,7 +20,7 @@ import java.util.Map;
 public class SupabaseService {
     public interface WriteListener { void beforeBusinessWrite(String table) throws Exception; void afterBusinessWrite(String table) throws Exception; }
     private static volatile WriteListener writeListener;
-    private static final java.util.Set<String> BUSINESS_TABLES = java.util.Set.of("projects","stages","tasks","habits","habit_logs","income","expenses","financial_goals","workout_routines","exercises","workout_sessions","workout_sets","attachments","redemptions","rpc");
+    private static final java.util.Set<String> BUSINESS_TABLES = java.util.Set.of("projects","stages","tasks","habits","habit_logs","income","expenses","financial_goals","workout_routines","exercises","workout_sessions","workout_sets","attachments","redemptions","rpc/redeem_product");
     public static void setWriteListener(WriteListener listener) { writeListener = listener; }
     private final AppConfig config;
     private final HttpTransport transport;
@@ -54,7 +54,7 @@ public class SupabaseService {
     }
     private HttpTransport.Response send(String method,String path,String body,String prefer)throws IOException,InterruptedException,SupabaseException {
         String route=path.startsWith("/")?path.substring(1):path;
-        String table=route.split("[?/ ]",2)[0];
+        String table=route.startsWith("rpc/")?route:route.split("[?/ ]",2)[0];
         return execute(method,route,body,prefer,config.url()+"/rest/v1/",false,false,table,
                 session->transport.send(method,URI.create(config.url()+"/rest/v1/"+route),headersFor(session,prefer,body!=null),body));
     }
@@ -83,11 +83,35 @@ public class SupabaseService {
         execute("DELETE",route,body,null,config.url()+"/storage/v1/",true,true,null,session->{Map<String,String> headers=headersFor(session,null,true);return transport.send("DELETE",URI.create(config.url()+"/storage/v1/"+route),headers,body);});
     }
 
+    public void postWithAccessToken(String path, Object value, String accessToken)
+            throws IOException, InterruptedException, SupabaseException {
+        String route = path.startsWith("/") ? path.substring(1) : path;
+        if (!"rpc/log_client_event".equals(route) || accessToken == null || accessToken.isBlank()) {
+            throw new IllegalArgumentException("La operación requiere un RPC permitido y una sesión temporal válida.");
+        }
+        var lock = SessionManager.requestLock().readLock();
+        lock.lock();
+        try {
+            Map<String, String> headers = new LinkedHashMap<>();
+            headers.put("apikey", config.key());
+            headers.put("Accept", "application/json");
+            headers.put("Content-Type", "application/json");
+            headers.put("Authorization", "Bearer " + accessToken);
+            HttpTransport.Response response = transport.send("POST",
+                    URI.create(config.url() + "/rest/v1/" + route), headers, json(value));
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                throw new SupabaseException(response.statusCode(), response.body());
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
     private HttpTransport.Response execute(String method,String route,String body,String prefer,String baseUrl,boolean storage,boolean ignoreNotFound,String actionTable,RequestCall requestCall)throws IOException,InterruptedException,SupabaseException {
         var lock=SessionManager.requestLock().readLock();lock.lock();
         try {
             boolean write=method.equals("POST")||method.equals("PATCH")||method.equals("DELETE");
-            String table=actionTable==null?route.split("[?/ ]",2)[0]:actionTable;
+            String table=actionTable==null?(route.startsWith("rpc/")?route:route.split("[?/ ]",2)[0]):actionTable;
             boolean business=write&&BUSINESS_TABLES.contains(table);
             Session initial=sessions.current();long requestGeneration=sessions.generation();
             if(requestGeneration!=generation)throw new SupabaseException(401,"La sesión cambió; vuelve a cargar la pantalla.");

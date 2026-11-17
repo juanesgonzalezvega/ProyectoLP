@@ -28,6 +28,8 @@ public class TasksController {
     @FXML private TableColumn<TaskItem, Integer> colProgress;
     @FXML private ComboBox<String> cmbFilter;
     @FXML private Button btnNew, btnEdit, btnDelete, btnComplete, btnAttachments;
+    @FXML private javafx.scene.control.ContextMenu taskEmptyMenu, taskRowMenu;
+    @FXML private javafx.scene.control.MenuItem miNewTask, miCompleteTask, miTaskAttachments, miEditTask, miDeleteTask;
     @FXML private Label lblMessage;
     private final ExecutorService executor = SessionTaskExecutor.get();
     private List<Project> projects = List.of();
@@ -45,6 +47,12 @@ public class TasksController {
         cmbFilter.setValue("Todas");
         cmbFilter.setOnAction(event -> cargarTareas());
         tblTasks.getSelectionModel().selectedItemProperty().addListener((o, a, b) -> updateActions());
+        ContextMenuSupport.installTableRows(tblTasks, taskRowMenu, taskEmptyMenu);
+        ContextMenuSupport.bindDisable(miNewTask, btnNew);
+        ContextMenuSupport.bindDisable(miCompleteTask, btnComplete);
+        ContextMenuSupport.bindDisable(miTaskAttachments, btnAttachments);
+        ContextMenuSupport.bindDisable(miEditTask, btnEdit);
+        ContextMenuSupport.bindDisable(miDeleteTask, btnDelete);
         updateActions();
         cargarTareas();
         cargarProyectos();

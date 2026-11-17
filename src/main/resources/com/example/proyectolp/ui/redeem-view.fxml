@@ -4,6 +4,7 @@
 <?import javafx.scene.layout.*?>
 
 <VBox spacing="12" stylesheets="@../css/theme.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.proyectolp.controller.RedeemController">
+ <fx:define><ContextMenu fx:id="redemptionRowMenu"><items><MenuItem fx:id="miCopyRedemptionCode" text="Copiar código" onAction="#copySelectedRedemptionCode"/></items></ContextMenu></fx:define>
  <HBox spacing="10"><VBox><Label styleClass="kicker" text="SALDO DISPONIBLE" /><Label fx:id="balanceLabel" styleClass="h2" /><Label fx:id="copLabel" /></VBox><Label styleClass="text-muted" wrapText="true" /><Button contentDisplay="CENTER" onAction="#showHistory" text="MIS CANJES" /></HBox>
  <Label fx:id="statusLabel" wrapText="true" />
  <StackPane>

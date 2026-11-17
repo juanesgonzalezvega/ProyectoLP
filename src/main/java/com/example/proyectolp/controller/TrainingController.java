@@ -22,6 +22,9 @@ import java.util.concurrent.*;
 public class TrainingController {
     @FXML private ListView<Routine> routineList; @FXML private ComboBox<Routine> sessionRoutine; @FXML private ComboBox<Exercise> sessionExercise,progressExercise;
     @FXML private ListView<Session> sessionHistoryList; @FXML private Button btnSessionAttachments, btnHistoryAttachments;
+    @FXML private Button btnNewRoutine;
+    @FXML private ContextMenu routineEmptyMenu, routineRowMenu, historyRowMenu;
+    @FXML private MenuItem miNewRoutine, miEditRoutine, miDeleteRoutine, miHistoryAttachments;
     @FXML private DatePicker sessionDate; @FXML private TextField weightField,repsField,commentField,timerConfig;
     @FXML private ComboBox<String> distributionPeriod;
     @FXML private Label messageLabel,timerLabel,sessionVolumeLabel,comparisonLabel,weeklyLabel,monthlyLabel,frequencyLabel,statsLabel;
@@ -30,8 +33,62 @@ public class TrainingController {
     private final ExecutorService executor=SessionTaskExecutor.get();
     private final TrainingStatsService stats=new TrainingStatsService(); private final RestTimer timer=new RestTimer();
     private List<Routine> routines=new ArrayList<>(); private List<Session> sessions=new ArrayList<>(); private List<SetEntry> sets=new ArrayList<>(); private Long currentSessionId; private boolean sessionFinished;
+    private boolean installingHistoryMenu;
     private Parent dashboardRoot; private DashboardController dashboard;
-    @FXML private void initialize(){sessionDate.setValue(LocalDate.now());distributionPeriod.setItems(FXCollections.observableArrayList("Semana","Mes"));distributionPeriod.getSelectionModel().selectFirst();distributionPeriod.valueProperty().addListener((o,a,b)->renderMuscles());routineList.setCellFactory(v->new ListCell<>(){@Override protected void updateItem(Routine r,boolean empty){super.updateItem(r,empty);setText(empty||r==null?null:r.name());}});sessionRoutine.setCellFactory(v->new ListCell<>(){@Override protected void updateItem(Routine r,boolean empty){super.updateItem(r,empty);setText(empty||r==null?null:r.name());}});sessionRoutine.setButtonCell(new ListCell<>(){@Override protected void updateItem(Routine r,boolean empty){super.updateItem(r,empty);setText(empty||r==null?"Sesión libre":r.name());}});setExerciseCell(sessionExercise);setExerciseCell(progressExercise);setTable.setItems(FXCollections.observableArrayList());setExerciseCol.setCellValueFactory(v->new javafx.beans.property.SimpleStringProperty(v.getValue().exerciseName()));setMuscleCol.setCellValueFactory(v->new javafx.beans.property.SimpleStringProperty(v.getValue().muscleGroup()));setNumberCol.setCellValueFactory(v->new javafx.beans.property.SimpleIntegerProperty(v.getValue().setNumber()));setWeightCol.setCellValueFactory(v->new javafx.beans.property.SimpleObjectProperty<>(v.getValue().weight()));setRepsCol.setCellValueFactory(v->new javafx.beans.property.SimpleIntegerProperty(v.getValue().reps()));timer.remainingSecondsProperty().addListener((o,a,b)->timerLabel.setText(timer.getDisplay()));timer.stateProperty().addListener((o,a,b)->{timerLabel.getStyleClass().remove("text-error");if(b==RestTimer.State.FINISHED)timerLabel.getStyleClass().add("text-error");});sessionRoutine.valueProperty().addListener((o,a,b)->{if(b!=null)sessionExercise.setItems(FXCollections.observableArrayList(b.exercises()));else sessionExercise.getItems().clear();});sessionHistoryList.getSelectionModel().selectedItemProperty().addListener((o,a,b)->btnHistoryAttachments.setDisable(b==null));loadData();}
+    @FXML private void initialize() {
+        sessionDate.setValue(LocalDate.now());
+        distributionPeriod.setItems(FXCollections.observableArrayList("Semana", "Mes"));
+        distributionPeriod.getSelectionModel().selectFirst();
+        distributionPeriod.valueProperty().addListener((o, a, b) -> renderMuscles());
+        routineList.setCellFactory(v -> new ListCell<>() {
+            @Override protected void updateItem(Routine routine, boolean empty) {
+                super.updateItem(routine, empty);
+                setText(empty || routine == null ? null : routine.name());
+            }
+        });
+        ContextMenuSupport.installListRows(routineList, routineRowMenu, routineEmptyMenu);
+        ContextMenuSupport.bindDisable(miNewRoutine, btnNewRoutine);
+        sessionHistoryList.cellFactoryProperty().addListener((observable, oldFactory, newFactory) -> {
+            if (newFactory != null && !installingHistoryMenu) {
+                installingHistoryMenu = true;
+                ContextMenuSupport.installListRows(sessionHistoryList, historyRowMenu, null);
+                ContextMenuSupport.bindDisable(miHistoryAttachments, btnHistoryAttachments);
+                installingHistoryMenu = false;
+            }
+        });
+        sessionRoutine.setCellFactory(v -> new ListCell<>() {
+            @Override protected void updateItem(Routine routine, boolean empty) {
+                super.updateItem(routine, empty);
+                setText(empty || routine == null ? null : routine.name());
+            }
+        });
+        sessionRoutine.setButtonCell(new ListCell<>() {
+            @Override protected void updateItem(Routine routine, boolean empty) {
+                super.updateItem(routine, empty);
+                setText(empty || routine == null ? "Sesión libre" : routine.name());
+            }
+        });
+        setExerciseCell(sessionExercise);
+        setExerciseCell(progressExercise);
+        setTable.setItems(FXCollections.observableArrayList());
+        setExerciseCol.setCellValueFactory(v -> new javafx.beans.property.SimpleStringProperty(v.getValue().exerciseName()));
+        setMuscleCol.setCellValueFactory(v -> new javafx.beans.property.SimpleStringProperty(v.getValue().muscleGroup()));
+        setNumberCol.setCellValueFactory(v -> new javafx.beans.property.SimpleIntegerProperty(v.getValue().setNumber()));
+        setWeightCol.setCellValueFactory(v -> new javafx.beans.property.SimpleObjectProperty<>(v.getValue().weight()));
+        setRepsCol.setCellValueFactory(v -> new javafx.beans.property.SimpleIntegerProperty(v.getValue().reps()));
+        timer.remainingSecondsProperty().addListener((o, a, b) -> timerLabel.setText(timer.getDisplay()));
+        timer.stateProperty().addListener((o, a, b) -> {
+            timerLabel.getStyleClass().remove("text-error");
+            if (b == RestTimer.State.FINISHED) timerLabel.getStyleClass().add("text-error");
+        });
+        sessionRoutine.valueProperty().addListener((o, a, b) -> {
+            if (b != null) sessionExercise.setItems(FXCollections.observableArrayList(b.exercises()));
+            else sessionExercise.getItems().clear();
+        });
+        sessionHistoryList.getSelectionModel().selectedItemProperty()
+                .addListener((o, a, b) -> btnHistoryAttachments.setDisable(b == null));
+        loadData();
+    }
     public void setDashboard(Parent root,DashboardController controller){dashboardRoot=root;dashboard=controller;}
     private void setExerciseCell(ComboBox<Exercise> combo){combo.setCellFactory(v->new ListCell<>(){@Override protected void updateItem(Exercise e,boolean empty){super.updateItem(e,empty);setText(empty||e==null?null:e.name()+" · "+e.muscleGroup());}});combo.setButtonCell(new ListCell<>(){@Override protected void updateItem(Exercise e,boolean empty){super.updateItem(e,empty);setText(empty||e==null?"Ejercicio":e.name());}});}
     private SupabaseService db() throws Exception{return new SupabaseService(AppConfig.load());}
@@ -46,7 +103,7 @@ public class TrainingController {
     @FXML private void deleteRoutine(){Routine r=routineList.getSelectionModel().getSelectedItem();if(r==null)return;executor.submit(()->{try{new WorkoutRoutineRepository(db()).delete(r.id());javafx.application.Platform.runLater(this::loadData);}catch(Exception e){javafx.application.Platform.runLater(()->messageLabel.setText(readable(e)));}});}
     @FXML private void startSession(){if(currentSessionId!=null&&!sessionFinished){messageLabel.setText("Finaliza la sesión actual primero.");return;}Routine r=sessionRoutine.getValue();LocalDate date=sessionDate.getValue()==null?LocalDate.now():sessionDate.getValue();sessionFinished=false;setTable.getItems().clear();sessionVolumeLabel.setText("Volumen sesión: 0");executor.submit(()->{try{long id=new WorkoutSessionRepository(db()).create(r==null?null:r.id(),date,"");javafx.application.Platform.runLater(()->{currentSessionId=id;btnSessionAttachments.setDisable(false);messageLabel.setText("Sesión iniciada.");});}catch(Exception e){javafx.application.Platform.runLater(()->messageLabel.setText(readable(e)));}});}
     @FXML private void addSet(){if(currentSessionId==null||sessionFinished){messageLabel.setText("Inicia una sesión antes de agregar series.");return;}Exercise exercise=sessionExercise.getValue();if(exercise==null){messageLabel.setText("Selecciona un ejercicio.");return;}try{BigDecimal weight=new BigDecimal(weightField.getText().trim());int reps=Integer.parseInt(repsField.getText().trim());if(weight.signum()<0||reps<=0)throw new IllegalArgumentException();int count=(int)setTable.getItems().stream().filter(s->s.exerciseName().equals(exercise.name())).count()+1;SetEntry set=new SetEntry(null,currentSessionId,exercise.name(),exercise.muscleGroup(),count,weight,reps,commentField.getText());executor.submit(()->{try{new WorkoutSetRepository(db()).create(set);javafx.application.Platform.runLater(()->{sets=new ArrayList<>(sets);sets.add(set);setTable.getItems().add(set);sessionVolumeLabel.setText("Volumen sesión: "+stats.volume(setTable.getItems()).toPlainString());refreshViews();refreshProgress();weightField.clear();repsField.clear();commentField.clear();messageLabel.setText("Serie registrada.");});}catch(Exception e){javafx.application.Platform.runLater(()->messageLabel.setText(readable(e)));}});}catch(Exception e){messageLabel.setText("Peso debe ser ≥ 0 y repeticiones un entero mayor que 0.");}}
-    @FXML private void finishSession(){if(currentSessionId==null||sessionFinished)return;sessionFinished=true;timer.pause();long id=currentSessionId;String volume=stats.volume(setTable.getItems()).toPlainString();messageLabel.setText("Finalizando sesión…");executor.submit(()->{try{com.example.proyectolp.service.GamificationRuntime.service().workoutFinished(id);javafx.application.Platform.runLater(()->{messageLabel.setText("Sesión finalizada · volumen "+volume);loadData();if(dashboard!=null)dashboard.refrescar();});}catch(Exception e){javafx.application.Platform.runLater(()->messageLabel.setText(readable(e)));}});}
+    @FXML private void finishSession(){if(currentSessionId==null||sessionFinished)return;sessionFinished=true;timer.pause();long id=currentSessionId;List<SetEntry> finishedSets=List.copyOf(setTable.getItems());BigDecimal finishedVolume=stats.volume(finishedSets);String volume=finishedVolume.toPlainString();messageLabel.setText("Finalizando sesión…");executor.submit(()->{try{com.example.proyectolp.service.GamificationRuntime.service().workoutFinished(id);try{new ActivityEventLogger(db(),Runnable::run).logSynchronously("entrenamiento_finalizado",Map.of("series",finishedSets.size(),"volumen",finishedVolume));}catch(Exception ignored){}javafx.application.Platform.runLater(()->{messageLabel.setText("Sesión finalizada · volumen "+volume);loadData();if(dashboard!=null)dashboard.refrescar();});}catch(Exception e){javafx.application.Platform.runLater(()->messageLabel.setText(readable(e)));}});}
     @FXML private void startTimer(){try{int n=Integer.parseInt(timerConfig.getText());timer.setDurationSeconds(n);timer.start();timerLabel.setText(timer.getDisplay());}catch(Exception e){messageLabel.setText("La duración del descanso debe ser un entero positivo.");}}
     @FXML private void pauseTimer(){timer.pause();} @FXML private void resetTimer(){try{timer.setDurationSeconds(Integer.parseInt(timerConfig.getText()));}catch(Exception e){timer.reset();}}
     @FXML private void refreshProgress(){Exercise e=progressExercise.getValue();if(e==null)return;progressChart.getData().clear();XYChart.Series<String,Number> s=new XYChart.Series<>();s.setName(e.name());List<TrainingStatsService.Progress> p=stats.progress(e.name(),sessions,sets);for(var v:p)s.getData().add(new XYChart.Data<>(v.date().toString(),v.volume()));progressChart.getData().add(s);comparisonLabel.setText(stats.compareLastTwo(e.name(),sessions,sets).map(c->"Sesión anterior → actual: peso máximo "+c.previous().maxWeight()+" → "+c.current().maxWeight()+" ("+c.weightDelta()+" kg), reps máximas "+c.repsDelta()+"; volumen "+c.volumeDelta()+".").orElse("Registra dos sesiones para comparar la progresión."));}

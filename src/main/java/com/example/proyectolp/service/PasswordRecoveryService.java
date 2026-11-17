@@ -53,6 +53,7 @@ public final class PasswordRecoveryService {
         }
         try {
             auth.updatePassword(temporary, newPassword);
+            auth.logPasswordUpdated(temporary);
             throttle.clearCodeAttempts(normalized);
             return CompleteStatus.SUCCESS;
         } finally {

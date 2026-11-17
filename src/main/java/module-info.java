@@ -6,6 +6,7 @@ module com.example.proyectolp {
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.datatype.jsr310;
     requires java.net.http;
+    requires java.xml;
     opens com.example.proyectolp.controller to javafx.fxml;
     opens com.example.proyectolp.model to javafx.base, com.fasterxml.jackson.databind;
     exports com.example.proyectolp;

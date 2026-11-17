@@ -14,6 +14,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import com.example.proyectolp.controller.ActivityHistoryController;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.Map;
@@ -22,6 +23,9 @@ import java.util.concurrent.Executors;
 
 public class MainApp extends Application {
     private static Stage stage;
+    private static Parent dashboardRoot;
+    private static DashboardController dashboardController;
+    private static ActivityHistoryController activityHistoryController;
     private static HostServices hostServices;
     private static ExecutorService lifecycle=Executors.newSingleThreadExecutor(r->{Thread t=new Thread(r,"session-lifecycle");t.setDaemon(true);return t;});
     private static String pendingLoginMessage="";
@@ -32,7 +36,7 @@ public class MainApp extends Application {
         showLogin("");
         lifecycle.submit(()->{try{Session restored=new AuthService(AppConfig.load(),SessionManager.getInstance(),new SessionStorage()).restore();if(restored!=null)Platform.runLater(MainApp::authenticated);}catch(Exception ignored){}});
     }
-    public static void showLogin(String message){if(stage==null)return;pendingLoginMessage=message==null?"":message;try{FXMLLoader loader=new FXMLLoader(MainApp.class.getResource("/com/example/proyectolp/ui/login.fxml"));Parent root=loader.load();Scene scene=new Scene(root,900,640);Theme.apply(scene);stage.setScene(scene);stage.setTitle("ProyectoLP · Iniciar sesión");stage.show();}catch(IOException e){throw new IllegalStateException("No se pudo abrir la pantalla de inicio de sesión.",e);}}
+    public static void showLogin(String message){if(stage==null)return;if(!SessionManager.getInstance().active()){if(activityHistoryController!=null)activityHistoryController.clearForLogout();activityHistoryController=null;dashboardRoot=null;dashboardController=null;}pendingLoginMessage=message==null?"":message;try{FXMLLoader loader=new FXMLLoader(MainApp.class.getResource("/com/example/proyectolp/ui/login.fxml"));Parent root=loader.load();Scene scene=new Scene(root,900,640);Theme.apply(scene);stage.setScene(scene);stage.setTitle("ProyectoLP · Iniciar sesión");stage.show();}catch(IOException e){throw new IllegalStateException("No se pudo abrir la pantalla de inicio de sesión.",e);}}
     public static String loginMessage(){return pendingLoginMessage;}
     public static boolean openLink(String url){if(hostServices==null||!RedemptionRules.validWebsite(url))return false;try{hostServices.showDocument(url);return true;}catch(Exception ignored){return false;}}
     public static void showRegister(){if(stage==null)return;try{Parent root=FXMLLoader.load(MainApp.class.getResource("/com/example/proyectolp/ui/register.fxml"));stage.getScene().setRoot(root);stage.setTitle("ProyectoLP · Crear cuenta");}catch(IOException e){showLogin("No se pudo abrir el registro.");}}
@@ -46,19 +50,55 @@ public class MainApp extends Application {
             GamificationRuntime.initialize(db);
             SupabaseService.setWriteListener(new SupabaseService.WriteListener(){@Override public void beforeBusinessWrite(String table)throws Exception{GamificationRuntime.streak().beforeAction();}@Override public void afterBusinessWrite(String table)throws Exception{GamificationRuntime.streak().recordAction();}});
             GamificationRuntime.streak().checkPenalty();GamificationRuntime.service().dailyMissions();
-            Platform.runLater(()->{if(SessionManager.getInstance().current()==null||!SessionManager.getInstance().current().userId().equals(session.userId()))return;try{FXMLLoader loader=new FXMLLoader(MainApp.class.getResource("/com/example/proyectolp/ui/dashboard.fxml"));Parent root=loader.load();Scene scene=new Scene(root,1200,820);Theme.apply(scene);stage.setScene(scene);stage.setTitle("ProyectoLP · Dashboard · "+name);stage.show();}catch(IOException e){showLogin("No se pudo abrir el Dashboard.");}});
+            new ActivityEventLogger(db, SessionTaskExecutor.get()).logBestEffort("inicio_sesion");
+            Platform.runLater(()->{if(SessionManager.getInstance().current()==null||!SessionManager.getInstance().current().userId().equals(session.userId()))return;try{FXMLLoader loader=new FXMLLoader(MainApp.class.getResource("/com/example/proyectolp/ui/dashboard.fxml"));Parent root=loader.load();dashboardRoot=root;dashboardController=loader.getController();Scene scene=new Scene(root,1200,820);Theme.apply(scene);stage.setScene(scene);stage.setTitle("ProyectoLP · Dashboard · "+name);stage.show();}catch(IOException e){showLogin("No se pudo abrir el Dashboard.");}});
         }catch(Exception e){SessionManager.getInstance().clear();new SessionStorage().clearQuietly();SupabaseService.setWriteListener(null);GamificationRuntime.clear();Platform.runLater(()->showLogin("No se pudo inicializar tu espacio. Revisa las políticas y ejecuta los scripts de Fase 9."));}
     });}
     public static void logout(){
         Session captured=SessionManager.getInstance().current();
         if(stage!=null&&stage.getScene()!=null)stage.getScene().getRoot().setDisable(true);
+        if(activityHistoryController!=null)activityHistoryController.clearForLogout();
+        activityHistoryController=null;
         lifecycle.submit(()->{
-            var requestLock=SessionManager.requestLock().writeLock();requestLock.lock();
-            try{SessionManager.getInstance().clear();new SessionStorage().clearQuietly();SessionTaskExecutor.reset();RedeemController.clearSessionCache();try{AttachmentCache.getInstance().clear();}catch(IOException ignored){}SupabaseService.setWriteListener(null);NotificationService.getInstance().clear();GamificationRuntime.clear();}
-            finally{requestLock.unlock();}
-            Platform.runLater(()->showLogin(""));
-            try{new AuthService(AppConfig.load(),SessionManager.getInstance(),new SessionStorage()).revoke(captured);}catch(Exception ignored){}
+            ActivityEventLogger activityLogger = null;
+            try { activityLogger = new ActivityEventLogger(new SupabaseService(AppConfig.load()), Runnable::run); }
+            catch (Exception ignored) { }
+            Runnable finishLogout = () -> {
+                var requestLock=SessionManager.requestLock().writeLock();requestLock.lock();
+                try{SessionManager.getInstance().clear();new SessionStorage().clearQuietly();SessionTaskExecutor.reset();RedeemController.clearSessionCache();try{AttachmentCache.getInstance().clear();}catch(IOException ignored){}SupabaseService.setWriteListener(null);NotificationService.getInstance().clear();GamificationRuntime.clear();}
+                finally{requestLock.unlock();}
+                dashboardRoot=null;dashboardController=null;
+                Platform.runLater(()->showLogin(""));
+                try{new AuthService(AppConfig.load(),SessionManager.getInstance(),new SessionStorage()).revoke(captured);}catch(Exception ignored){}
+            };
+            if (activityLogger == null) finishLogout.run();
+            else activityLogger.logCloseBefore(finishLogout);
         });
+    }
+    public static void openActivityHistory() {
+        if (stage == null || stage.getScene() == null) return;
+        try {
+            FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("/com/example/proyectolp/ui/activity-history.fxml"));
+            Parent root = loader.load();
+            ActivityHistoryController controller = loader.getController();
+            controller.setDashboard(dashboardRoot, dashboardController);
+            activityHistoryController = controller;
+            stage.getScene().setRoot(root);
+            stage.setTitle("ProyectoLP · Historial");
+        } catch (IOException e) {
+            NotificationService.getInstance().show("No se pudo abrir el historial de actividad.");
+        }
+    }
+
+    public static void showDashboard() {
+        if (stage == null || stage.getScene() == null) return;
+        if (dashboardRoot != null) {
+            stage.getScene().setRoot(dashboardRoot);
+            stage.setTitle("ProyectoLP · Dashboard");
+            if (dashboardController != null) dashboardController.refrescar();
+            return;
+        }
+        authenticated();
     }
     @Override public void stop(){if(lifecycle!=null)lifecycle.shutdownNow();try{AttachmentCache.getInstance().clear();AttachmentCache.getInstance().dispose();}catch(IOException ignored){}SupabaseService.setWriteListener(null);}
 }

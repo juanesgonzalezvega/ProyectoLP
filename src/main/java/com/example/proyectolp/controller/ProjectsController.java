@@ -33,7 +33,11 @@ public class ProjectsController {
     @FXML private ProgressBar barProgress;
     @FXML private ListView<Stage> listProjectStages;
     @FXML private ComboBox<String> cmbStageStatus;
-    @FXML private Button btnUpdateStage, btnEdit, btnDelete, btnAttachments;
+    @FXML private Button btnNewProject, btnUpdateStage, btnEdit, btnDelete, btnAttachments;
+    @FXML private ContextMenu projectEmptyMenu, projectRowMenu, stageRowMenu;
+    @FXML private Menu stageStatusMenu;
+    @FXML private MenuItem miNewProject, miProjectAttachments, miEditProject, miDeleteProject;
+    @FXML private MenuItem miStagePending, miStageInProgress, miStageCompleted;
     @FXML private Parent projectsRoot;
     private final ExecutorService executor = SessionTaskExecutor.get();
     private final ProjectProgressService progressService = new ProjectProgressService();
@@ -50,6 +54,16 @@ public class ProjectsController {
             if (stage != null) cmbStageStatus.setValue(stage.getStatus());
             updateStageControls();
         });
+        ContextMenuSupport.installTableRows(tblProjects, projectRowMenu, projectEmptyMenu);
+        ContextMenuSupport.installListRows(listProjectStages, stageRowMenu, null);
+        ContextMenuSupport.bindDisable(miNewProject, btnNewProject);
+        ContextMenuSupport.bindDisable(miProjectAttachments, btnAttachments);
+        ContextMenuSupport.bindDisable(miEditProject, btnEdit);
+        ContextMenuSupport.bindDisable(miDeleteProject, btnDelete);
+        ContextMenuSupport.bindDisable(stageStatusMenu, btnUpdateStage);
+        ContextMenuSupport.bindDisable(miStagePending, btnUpdateStage);
+        ContextMenuSupport.bindDisable(miStageInProgress, btnUpdateStage);
+        ContextMenuSupport.bindDisable(miStageCompleted, btnUpdateStage);
         updateSelectionControls();
         cargarProyectos();
     }
@@ -84,6 +98,16 @@ public class ProjectsController {
         runAsync(() -> { new StageRepository(client()).actualizar(updated); return null; }, ignored -> {
             lblMessage.setText("Estado de etapa actualizado."); cargarProyectos(projectId);
         }, "No se pudo actualizar el estado de la etapa.");
+    }
+
+    @FXML private void marcarEtapaPendiente() { guardarEstadoEtapa("pendiente"); }
+    @FXML private void marcarEtapaEnProgreso() { guardarEstadoEtapa("en_progreso"); }
+    @FXML private void marcarEtapaCompletada() { guardarEstadoEtapa("completada"); }
+
+    private void guardarEstadoEtapa(String status) {
+        if (listProjectStages.getSelectionModel().getSelectedItem() == null) return;
+        cmbStageStatus.setValue(status);
+        guardarEstadoEtapa();
     }
 
     @FXML private void volverDashboard() {

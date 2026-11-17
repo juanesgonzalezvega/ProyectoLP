@@ -39,6 +39,8 @@ public class HabitsController {
     @FXML private DatePicker dateSelected;
     @FXML private CheckBox chkShowInactive;
     @FXML private Button btnEdit, btnToggleActive, btnNewHabit;
+    @FXML private ContextMenu habitEmptyMenu, habitRowMenu;
+    @FXML private MenuItem miNewHabit, miToggleDone, miEditHabit, miToggleHabitActive;
     @FXML private Label lblMessage, lblHistoryTitle;
     @FXML private Parent habitsRoot;
 
@@ -65,9 +67,18 @@ public class HabitsController {
         dateSelected.setValue(LocalDate.now());
         dateSelected.valueProperty().addListener((o, oldDate, newDate) -> actualizarFechaSeleccionada());
         chkShowInactive.selectedProperty().addListener((o, oldValue, newValue) -> aplicarFiltro());
-        tblHabits.getSelectionModel().selectedItemProperty().addListener((o, oldValue, newValue) -> mostrarHistorial(newValue));
+        tblHabits.getSelectionModel().selectedItemProperty().addListener((o, oldValue, newValue) -> {
+            mostrarHistorial(newValue);
+            actualizarMenuCumplimiento();
+        });
         filteredRows = new FilteredList<>(allRows, row -> row.getHabit().isActive());
         tblHabits.setItems(filteredRows);
+        ContextMenuSupport.installTableRows(tblHabits, habitRowMenu, habitEmptyMenu);
+        ContextMenuSupport.bindDisable(miNewHabit, btnNewHabit);
+        ContextMenuSupport.bindDisable(miToggleDone, btnEdit);
+        ContextMenuSupport.bindDisable(miEditHabit, btnEdit);
+        ContextMenuSupport.bindDisable(miToggleHabitActive, btnToggleActive);
+        ContextMenuSupport.bindText(miToggleHabitActive, btnToggleActive);
         actualizarAcciones();
         cargarDatos();
     }
@@ -84,6 +95,15 @@ public class HabitsController {
         btnToggleActive.setDisable(true);
         runRepository(repo -> repo.actualizarActivo(row.getId(), newActive),
                 "No se pudo actualizar el hábito.", newActive ? "Hábito activado." : "Hábito desactivado.");
+    }
+
+    @FXML private void alternarCumplimientoHoy() {
+        HabitSummary row = tblHabits.getSelectionModel().getSelectedItem();
+        if (row == null) return;
+        LocalDate today = LocalDate.now();
+        boolean completed = !isCompletedOn(row, today);
+        miToggleDone.setText(ContextMenuSupport.habitCompletionLabel(completed));
+        guardarCumplimiento(row, completed, today);
     }
 
     @FXML private void volverDashboard() {
@@ -130,14 +150,17 @@ public class HabitsController {
             }
             aplicarFiltro();
             if (tblHabits.getSelectionModel().getSelectedItem() == null && !filteredRows.isEmpty()) tblHabits.getSelectionModel().selectFirst();
-            tblHabits.refresh(); lblMessage.setText("Hábitos actualizados."); actualizarAcciones();
+            tblHabits.refresh(); lblMessage.setText("Hábitos actualizados."); actualizarAcciones(); actualizarMenuCumplimiento();
         });
         load.setOnFailed(event -> lblMessage.setText("Error al cargar hábitos: " + message(load.getException())));
         executor.submit(load);
     }
 
     private void guardarCumplimiento(HabitSummary row, boolean completed) {
-        LocalDate date = selectedDate();
+        guardarCumplimiento(row, completed, selectedDate());
+    }
+
+    private void guardarCumplimiento(HabitSummary row, boolean completed, LocalDate date) {
         if (date == null) return;
         lblMessage.setText("Guardando cumplimiento del " + date + "…"); tblHabits.setDisable(true);
         runRepository(repo -> repo.upsertLog(row.getId(), date, completed),
@@ -177,6 +200,14 @@ public class HabitsController {
 
     private boolean hasCompletion(List<HabitLog> logs, LocalDate date) {
         return logs.stream().anyMatch(log -> log.isCompleted() && date.equals(log.getLogDate()));
+    }
+    private boolean isCompletedOn(HabitSummary row, LocalDate date) {
+        return allLogs.stream().filter(log -> log.getHabitId() == row.getId()).anyMatch(log -> log.isCompleted() && date.equals(log.getLogDate()));
+    }
+    private void actualizarMenuCumplimiento() {
+        if (miToggleDone == null) return;
+        HabitSummary selected = tblHabits == null ? null : tblHabits.getSelectionModel().getSelectedItem();
+        miToggleDone.setText(ContextMenuSupport.habitCompletionLabel(selected != null && isCompletedOn(selected, LocalDate.now())));
     }
     private LocalDate selectedDate() { return dateSelected.getValue() == null ? LocalDate.now() : dateSelected.getValue(); }
     private void aplicarFiltro() {

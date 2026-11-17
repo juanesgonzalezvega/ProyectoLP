@@ -129,10 +129,10 @@ class PasswordRecoveryTest {
         assertEquals(PasswordRecoveryService.CompleteStatus.LOCKED,service.complete("a@example.com","111111","password-1")); assertEquals(5,paths.size());
 
         SessionManager manager=manager(); Session existing=new Session("existing","existing-refresh",initial.plusSeconds(4000),"existing-user","existing@example.com",""); manager.set(existing);
-        List<String> successPaths=new ArrayList<>(); List<URI> successUris=new ArrayList<>(); Queue<HttpTransport.Response> q=new ArrayDeque<>(List.of(new HttpTransport.Response(200,sessionJson()),new HttpTransport.Response(200,"{}"),new HttpTransport.Response(204,"")));
+        List<String> successPaths=new ArrayList<>(); List<URI> successUris=new ArrayList<>(); Queue<HttpTransport.Response> q=new ArrayDeque<>(List.of(new HttpTransport.Response(200,sessionJson()),new HttpTransport.Response(200,"{}"),new HttpTransport.Response(204,""),new HttpTransport.Response(204,"")));
         PasswordRecoveryService successful=new PasswordRecoveryService(auth((m,u,h,b)->{successPaths.add(u.getPath());successUris.add(u);return q.remove();},manager),new RecoveryThrottle(clock));
         assertEquals(PasswordRecoveryService.CompleteStatus.SUCCESS,successful.complete("a@example.com","123456","password-2"));
-        assertEquals(List.of("/auth/v1/verify","/auth/v1/user","/auth/v1/logout"),successPaths); assertEquals(existing,manager.current()); assertTrue(successUris.get(2).toString().endsWith("/auth/v1/logout?scope=local"));
+        assertEquals(List.of("/auth/v1/verify","/auth/v1/user","/rest/v1/rpc/log_client_event","/auth/v1/logout"),successPaths); assertEquals(existing,manager.current()); assertTrue(successUris.get(3).toString().endsWith("/auth/v1/logout?scope=local"));
     }
 
     private static final class MutableClock extends Clock {
